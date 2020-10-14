@@ -4,11 +4,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 public class GreetingEntity {
 	
 	private @Id @GeneratedValue Long id;
+	@JsonProperty("name")
 	private String name;
+	@JsonProperty("role")
 	private String role;
 	
 	GreetingEntity() {}
@@ -52,26 +56,36 @@ public class GreetingEntity {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
+		
 		if (obj == null)
 			return false;
+		
 		if (getClass() != obj.getClass())
 			return false;
+		
 		GreetingEntity other = (GreetingEntity) obj;
+		
 		if (id == null) {
 			if (other.id != null)
 				return false;
+			
 		} else if (!id.equals(other.id))
 			return false;
+		
 		if (name == null) {
 			if (other.name != null)
 				return false;
+			
 		} else if (!name.equals(other.name))
 			return false;
+		
 		if (role == null) {
 			if (other.role != null)
 				return false;
+			
 		} else if (!role.equals(other.role))
 			return false;
+		
 		return true;
 	}
 	
