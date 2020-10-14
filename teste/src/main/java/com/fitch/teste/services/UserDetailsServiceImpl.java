@@ -10,6 +10,9 @@ import com.fitch.teste.authentication.UserAuthentication;
 import com.fitch.teste.entities.UserEntity;
 import com.fitch.teste.respositories.UserRepository;
 
+/*
+ * Classe que implementa o contrato de autenticação do usuário padrão do Spring Security.
+ */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 	

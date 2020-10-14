@@ -27,6 +27,9 @@ public class JWTUtil {
 	@Value("${jwt.expiry}")
 	private Long expiration;
 	
+	/*
+	 * Gera o token se o e-mail e a senha existirem no banco
+	 */
 	public String generateToken(String email) {
 		return Jwts.builder()
 				.setSubject(email)
@@ -35,16 +38,22 @@ public class JWTUtil {
 				.compact();
 	}
 	
+	/*
+	 * Se o token tem um e-mail válido e a data de expiração é inferior a atual do sistema, o token é válido
+	 */
 	public boolean isValidToken(String token) {
 		Claims claims = getClaims(token);
 		
-		return claims != null && claims.getSubject() != null && claims.getExpiration() != null && new Date().before(claims.getExpiration());
+		return claims != null && getEmail(token) != null 
+				&& claims.getExpiration() != null && new Date().before(claims.getExpiration());
 			
 	}
 	
+	// Usado para extrair o e-mail do usuário do token
 	public String getEmail(String token) {
 		Claims claims = getClaims(token);
 		
+		// Devolve o subject do token. No nosso caso, o e-mail
 		return claims.getSubject();
 	}
 

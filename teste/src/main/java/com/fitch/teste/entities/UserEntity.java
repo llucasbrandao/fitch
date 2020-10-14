@@ -15,10 +15,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,24 +29,23 @@ public class UserEntity {
 	private Long id;
 	
 	@JsonProperty("first_name")
-	@Length(min =  2, max = 30, message = "first_name must have at least 2 characters and max 30")
+	@Column(nullable = false)
 	private String first_name;
 	
 	@JsonProperty("last_name")
-	@Length(min =  2, max = 30, message = "last_name must have at least 2 characters and max 30")
+	@Column(nullable = false)
 	private String last_name;
 	
 	@JsonProperty("email")
-	@Email(message = "Invalid email address")
-	@Column(unique = true)
+	@Column(unique = true, nullable = false)
 	private String email;
 	
 	@JsonIgnore
-	@Length(min =  2, max = 80, message = "password must have at least 8 characters and max 80")
+	@Column(nullable = false)
 	private String password;
 	
 	@JsonProperty("birthday")
-	@NotNull(message = "birthday must not be empty")
+	@Column(nullable = false)
 	private Date birthday;
 	
 	@ElementCollection(fetch = FetchType.EAGER)
@@ -75,19 +70,19 @@ public class UserEntity {
 		return id;
 	}
 
-	public String getFirst_name() {
+	public String getFirstName() {
 		return first_name;
 	}
 
-	public void setFirst_name(String first_name) {
+	public void setFirstName(String first_name) {
 		this.first_name = first_name;
 	}
 
-	public String getLast_name() {
+	public String getLastName() {
 		return last_name;
 	}
 
-	public void setLast_name(String last_name) {
+	public void setLastName(String last_name) {
 		this.last_name = last_name;
 	}
 
@@ -116,6 +111,7 @@ public class UserEntity {
 	}
 	
 	public Set<UserRoleEnum> getRole() {
+		// O usuário pode ter mais de um role
 		return roles.stream().map(x -> UserRoleEnum.toEnum(x)).collect(Collectors.toSet());
 	}
 

@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -26,6 +27,7 @@ import com.fitch.teste.authentication.JWTUtil;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true) // Necessário para ativar a validação de acessos por roles nos controllers
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
@@ -36,12 +38,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	// Rotas abertas
 	private static final String[] PUBLIC_ROUTES = {
-			"/login"
+			"/login",
+			"/api/v1/users/new"
 	};
 	
 	// Rotas abertas que não permitem inserção de dados, apenas consultas
 	private static final String[] PUBLIC_ROUTES_GET = {
-			"/api/teste**"
+			"/api/teste/**"
 	};
 	
 	@Override
@@ -55,7 +58,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Como o sistema é stateless, não precisamos nos preocupar com CSFR
 		
-		// Handler customizado para requisições negadas (4xx)
+		/*
+		 *  Handler customizado para requisições negadas (4xx).
+		 *  Permite customizar  o erro retornado.
+		 */
 		http
 	    .exceptionHandling()
 	    .authenticationEntryPoint((request, response, e) -> 
@@ -64,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 	        response.getWriter().write(new JSONObject() 
 	                .put("timestamp", new Date())
-	                .put("message", e.getMessage())
+	                .put("message", e.getMessage()) // Para adicionar mais informações, basta inserir uma nova chave e valor
 	                .toString());
 	    });
 	}
