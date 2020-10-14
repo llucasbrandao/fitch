@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.fitch.teste.authentication.JWTAuthFilter;
+import com.fitch.teste.authentication.JWTAuthorizationFilter;
 import com.fitch.teste.authentication.JWTUtil;
 
 @Configuration
@@ -51,8 +52,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers(PUBLIC_ROUTES).permitAll()
 			.anyRequest().authenticated();
 		http.addFilter(new JWTAuthFilter(authenticationManager(), jwtUtil));
+		http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Como o sistema é stateless, não precisamos nos preocupar com CSFR
 		
+		// Handler customizado para requisições negadas (4xx)
 		http
 	    .exceptionHandling()
 	    .authenticationEntryPoint((request, response, e) -> 

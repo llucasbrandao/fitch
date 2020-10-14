@@ -5,6 +5,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -32,5 +33,28 @@ public class JWTUtil {
 				.setExpiration(new Date(System.currentTimeMillis() + expiration))
 				.signWith(SignatureAlgorithm.HS512, secret.getBytes())
 				.compact();
+	}
+	
+	public boolean isValidToken(String token) {
+		Claims claims = getClaims(token);
+		
+		return claims != null && claims.getSubject() != null && claims.getExpiration() != null && new Date().before(claims.getExpiration());
+			
+	}
+	
+	public String getEmail(String token) {
+		Claims claims = getClaims(token);
+		
+		return claims.getSubject();
+	}
+
+	private Claims getClaims(String token) {
+		try {
+			// Extrai e retorna os dados do token
+			return Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
+			
+		} catch (Exception e) {
+			return null;
+		}
 	}
 }
