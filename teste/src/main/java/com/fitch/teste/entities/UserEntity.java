@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fitch.teste.enums.UserRoleEnum;
 
@@ -44,8 +45,8 @@ public class UserEntity {
 	@Column(unique = true)
 	private String email;
 	
-	@JsonProperty("password")
-	@Length(min =  2, max = 30, message = "password must have at least 8 characters and max 30")
+	@JsonIgnore
+	@Length(min =  2, max = 80, message = "password must have at least 8 characters and max 80")
 	private String password;
 	
 	@JsonProperty("birthday")
@@ -58,7 +59,7 @@ public class UserEntity {
 	
 	public UserEntity() {
 		// Todo usuário recebe o role user, mesmo que ele também seja ADMIN
-		addRole(UserRoleEnum.USER);
+		addRole(UserRoleEnum.ROLE_USER);
 	}
 	
 	public UserEntity(String first_name, String last_name, String email, String password, Date birthday, Set<Integer> role) {

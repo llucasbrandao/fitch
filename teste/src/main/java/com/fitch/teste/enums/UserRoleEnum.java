@@ -1,8 +1,8 @@
 package com.fitch.teste.enums;
 
 public enum UserRoleEnum {
-	ADMIN(1, "ROLE_ADMIN"),
-	USER(2, "ROLE_USER");
+	ROLE_ADMIN(1, "ROLE_ADMIN"),
+	ROLE_USER(2, "ROLE_USER");
 	
 	private int code;
 	private String description;

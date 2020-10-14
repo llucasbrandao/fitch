@@ -50,7 +50,6 @@ public class JWTAuthFilter extends UsernamePasswordAuthenticationFilter {
 	public void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) 
 			throws IOException, ServletException {
 		
-		System.out.println("DEUUUUUUUUU");
 		// Se a autenticação no attemptAuthentication passar, geramos o token e o adicionamos à requisição
 		res.addHeader("Authorization", "Bearer " + jwtUtil.generateToken(((UserAuthentication) auth.getPrincipal()).getUsername()));
 	}

@@ -1,5 +1,10 @@
 package com.fitch.teste.configs;
 
+import java.util.Date;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +35,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	// Rotas abertas
 	private static final String[] PUBLIC_ROUTES = {
-			"/api/v2**",
 			"/login"
 	};
 	
@@ -48,6 +52,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.anyRequest().authenticated();
 		http.addFilter(new JWTAuthFilter(authenticationManager(), jwtUtil));
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // Como o sistema é stateless, não precisamos nos preocupar com CSFR
+		
+		http
+	    .exceptionHandling()
+	    .authenticationEntryPoint((request, response, e) -> 
+	    {
+	        response.setContentType("application/json;charset=UTF-8");
+	        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+	        response.getWriter().write(new JSONObject() 
+	                .put("timestamp", new Date())
+	                .put("message", e.getMessage())
+	                .toString());
+	    });
 	}
 	
 	@Override

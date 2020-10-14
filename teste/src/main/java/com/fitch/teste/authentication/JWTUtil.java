@@ -27,7 +27,6 @@ public class JWTUtil {
 	private Long expiration;
 	
 	public String generateToken(String email) {
-		System.out.println("Tentou gerar o token");
 		return Jwts.builder()
 				.setSubject(email)
 				.setExpiration(new Date(System.currentTimeMillis() + expiration))
