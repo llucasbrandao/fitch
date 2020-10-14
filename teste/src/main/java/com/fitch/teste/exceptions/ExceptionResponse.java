@@ -3,19 +3,30 @@ package com.fitch.teste.exceptions;
 import java.io.Serializable;
 import java.util.Date;
 
-public class ExceptionResponse implements Serializable {
+import org.springframework.http.HttpStatus;
+
+public class ExceptionResponse extends Throwable implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
 	private Date timestamp;
 	private String message;
 	private String details;
+	private HttpStatus httpStatus;
 	
 	public ExceptionResponse(Date timestamp, String message, String details) {
 		super();
 		this.timestamp = timestamp;
 		this.message = message;
 		this.details = details;
+	}
+	
+	public ExceptionResponse(Date timestamp, String message, String details, HttpStatus httpStatus) {
+		super();
+		this.timestamp = timestamp;
+		this.message = message;
+		this.details = details;
+		this.httpStatus = httpStatus;
 	}
 
 	public Date getTimestamp() {
@@ -28,5 +39,13 @@ public class ExceptionResponse implements Serializable {
 
 	public String getDetails() {
 		return details;
+	}
+
+	public HttpStatus getHttpStatus() {
+		return httpStatus;
+	}
+
+	public void setHttpStatus(HttpStatus httpStatus) {
+		this.httpStatus = httpStatus;
 	}
 }

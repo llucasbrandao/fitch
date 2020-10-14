@@ -10,6 +10,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fitch.teste.enums.UserRoleEnum;
 
+/**
+ * Classe que define o usuário a nível de autenticação no sistema.
+ * Implementa interface usada pelo Spring Security.
+ * 
+ * @author Lucas Brandão
+ */
 public class UserAuthentication implements UserDetails {
 	
 	private static final long serialVersionUID = 1L;
@@ -48,6 +54,7 @@ public class UserAuthentication implements UserDetails {
 
 	@Override
 	public String getUsername() {
+		// Retorna o e-mail, ao invés do username
 		return email;
 	}
 
@@ -69,5 +76,9 @@ public class UserAuthentication implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+	
+	public boolean hasRole(UserRoleEnum role) {
+		return getAuthorities().contains(new SimpleGrantedAuthority(role.getDescription()));
 	}
 }

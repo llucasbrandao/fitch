@@ -13,26 +13,28 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fitch.teste.enums.UserRoleEnum;
 
 @Entity
-@Table(uniqueConstraints= @UniqueConstraint(columnNames = {"email"})) 
+@Table(name = "users", uniqueConstraints= @UniqueConstraint(columnNames = {"email"})) 
 public class UserEntity {
 	
 	@Id 
 	@GeneratedValue(strategy = GenerationType.IDENTITY) 
 	private Long id;
 	
-	@JsonProperty("first_name")
 	@Column(nullable = false)
 	private String first_name;
 	
-	@JsonProperty("last_name")
 	@Column(nullable = false)
 	private String last_name;
 	
@@ -48,8 +50,11 @@ public class UserEntity {
 	@Column(nullable = false)
 	private Date birthday;
 	
+	// Ao buscar um usuário, já traz junto seus respectivos roles
 	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "UserRoleEnum")
+	@CollectionTable(name = "users_roles")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "id")
 	private Set<Integer> roles = new HashSet<>();
 	
 	public UserEntity() {

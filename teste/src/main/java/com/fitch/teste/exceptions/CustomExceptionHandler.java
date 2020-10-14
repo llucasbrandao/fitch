@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -25,7 +27,15 @@ public class CustomExceptionHandler {
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}*/
 	
-	@ExceptionHandler(NotFoundException.class)
+	@ExceptionHandler(value = {GenericException.class})
+	public final ResponseEntity<ExceptionResponse> handleGenericException(GenericException ex, WebRequest request) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
+				request.getDescription(false));
+		
+		return new ResponseEntity<>(exceptionResponse, ex.getHttpStatus());
+	}
+	
+	@ExceptionHandler(value = {NotFoundException.class})
 	public final ResponseEntity<ExceptionResponse> handleNotFoundException(Exception ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
 				request.getDescription(false));
@@ -75,5 +85,37 @@ public class CustomExceptionHandler {
 				request.getDescription(false));
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+	}
+	
+	@ExceptionHandler(value = {AuthorizationException.class})
+	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(AuthorizationException ex, WebRequest request) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
+				request.getDescription(false));
+		
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.UNAUTHORIZED);
+	}
+	
+	@ExceptionHandler(value = {InvalidParameterException.class})
+	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(InvalidParameterException ex, WebRequest request) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
+				request.getDescription(false));
+		
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+	}
+	
+	@ExceptionHandler(value = {HttpRequestMethodNotSupportedException.class})
+	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(HttpRequestMethodNotSupportedException ex, WebRequest request) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
+				request.getDescription(false));
+		
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
+	}
+	
+	@ExceptionHandler(value = {MissingServletRequestParameterException.class})
+	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(MissingServletRequestParameterException ex, WebRequest request) {
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
+				request.getDescription(false));
+		
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
 	}
 }
