@@ -1,4 +1,4 @@
-/*package com.fitch.teste.entities;
+package com.fitch.teste.entities;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Entity;
@@ -7,7 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -18,27 +18,53 @@ public class OrderIngredientsEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@OneToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@CollectionTable(name = "order")
+	@JoinColumn(name = "order_id")
+	private OrdersEntity order;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
 	@CollectionTable(name = "ingredients")
-	@JoinColumn(name = "id")
-	private Long ingredient_id;
+	@JoinColumn(name = "ingredient_id")
+	private IngredientsEntity ingredient;
 	
-	public OrderIngredientsEntity() {}
+	private Long quantity;
 	
-	public OrderIngredientsEntity(Long ingredient_id) {
+	public OrderIngredientsEntity() {
 		super();
-		this.ingredient_id = ingredient_id;
 	}
 
-	public Long getID() {
-		return this.id;
+	public OrderIngredientsEntity(IngredientsEntity ingredient, OrdersEntity order, Long quantity) {
+		this.ingredient = ingredient;
+		this.order = order;
+		this.quantity = quantity;
+	}
+	
+	public Long getId() {
+		return id;
 	}
 
-	public Long getIngredient_id() {
-		return ingredient_id;
+	public OrdersEntity getOrder_id() {
+		return order;
 	}
 
-	public void setIngredient_id(Long ingredient_id) {
-		this.ingredient_id = ingredient_id;
+	public void setOrder_id(OrdersEntity order) {
+		this.order = order;
 	}
-}*/
+
+	public IngredientsEntity getIngredient_id() {
+		return ingredient;
+	}
+
+	public void setIngredient_id(IngredientsEntity ingredient_id) {
+		this.ingredient = ingredient_id;
+	}
+
+	public Long getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Long quantity) {
+		this.quantity = quantity;
+	}
+}

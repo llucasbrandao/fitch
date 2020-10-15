@@ -1,10 +1,10 @@
 package com.fitch.teste.dto;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import com.fitch.teste.entities.IngredientsEntity;
 import com.fitch.teste.entities.UserEntity;
 
 public class OrdersResponseDTO implements Serializable {
@@ -19,7 +19,7 @@ public class OrdersResponseDTO implements Serializable {
 	
 	private Double discount;
 	
-	private Set<IngredientsEntity> order_ingredients = new HashSet<>();
+	private List<Map<String, String>> order_ingredients = new ArrayList<>();
 
 	public OrdersResponseDTO(Long id, UserEntity user, Double total_due, Double discount) {
 		super();
@@ -61,11 +61,11 @@ public class OrdersResponseDTO implements Serializable {
 		this.discount = discount;
 	}
 
-	public Set<IngredientsEntity> getOrder_ingredients() {
+	public List<Map<String, String>> getOrder_ingredients() {
 		return order_ingredients;
 	}
 
-	public void setOrder_ingredients(Set<IngredientsEntity> order_ingredients) {
+	public void setOrder_ingredients(List<Map<String, String>> order_ingredients) {
 		this.order_ingredients = order_ingredients;
 	}
 }

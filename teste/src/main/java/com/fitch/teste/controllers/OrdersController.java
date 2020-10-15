@@ -4,6 +4,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fitch.teste.dto.GenericResponseDTO;
 import com.fitch.teste.dto.OrdersDTO;
+import com.fitch.teste.exceptions.InvalidParameterException;
 import com.fitch.teste.services.OrdersService;
 
 @RestController
@@ -27,8 +29,11 @@ public class OrdersController {
 		this.ordersService = ordersService;
 	}
 	
-	@PostMapping("/new")
+	@PostMapping(value = "/new",  produces=MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<GenericResponseDTO<?>> newOrder(@Valid @RequestBody OrdersDTO order) {
+		if (order.getIngredients() == null)
+			throw new InvalidParameterException("Missing order ingredients");
+		
 		return new ResponseEntity<>(new GenericResponseDTO<>(ordersService.newOrder(order), HttpStatus.OK), HttpStatus.OK);
 	}
 	

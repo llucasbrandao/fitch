@@ -4,6 +4,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.SessionFactoryBuilder;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -16,6 +22,8 @@ import com.fitch.teste.repositories.UserRepository;
 
 @Component
 public class DBService {
+	
+	private static SessionFactory sessionFactory;
 	
 	@Autowired
 	private UserRepository userRepository;
@@ -66,4 +74,30 @@ public class DBService {
 		if (userInserted == 0)
 			System.out.println("\n\tDados de testes já existem...\n");
 	}
+
+	/*
+	 * Os dois métodos abaixo são usados para criarmos uma Sessão do Hibernate e a usarmos com o Criteria, para buscas mais flexíveis.
+	 */
+    private static SessionFactory buildSessionFactory() {
+        StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder().
+                configure("hibernate.cfg.xml").build();
+
+        Metadata metadata = new MetadataSources(standardRegistry).getMetadataBuilder().
+                build();
+
+        SessionFactoryBuilder sessionFactoryBuilder = metadata.getSessionFactoryBuilder();
+
+        SessionFactory sessionFactory = sessionFactoryBuilder.build();
+
+        return sessionFactory;
+    }
+
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            sessionFactory = buildSessionFactory();
+        }
+        
+        return sessionFactory;
+    }
+	
 }
