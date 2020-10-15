@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.fitch.teste.authentication.UserAuthentication;
 import com.fitch.teste.entities.UserEntity;
-import com.fitch.teste.respositories.UserRepository;
+import com.fitch.teste.repositories.UserRepository;
 
 /*
  * Classe que implementa o contrato de autenticação do usuário padrão do Spring Security.

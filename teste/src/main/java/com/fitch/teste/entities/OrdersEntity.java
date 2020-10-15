@@ -1,5 +1,6 @@
 package com.fitch.teste.entities;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -10,8 +11,14 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import com.fitch.teste.services.OrdersService;
 
 @Entity
 @Table(name = "orders")
@@ -24,26 +31,28 @@ public class OrdersEntity {
 	// Ao buscar um pedido, já traz junto o usuário que o fez
 	@ManyToOne(fetch = FetchType.EAGER)
 	@CollectionTable(name = "users")
+	@JoinColumn(name = "user_id")
 	private UserEntity user;
 	
 	@Column(nullable = false)
 	private Double total_due;
 	
-	/*// Ao buscar um pedido, já traz junto seus respectivos ingredientes
-	@Column(nullable = false)
+	// Ao buscar um pedido, já traz junto seus respectivos ingredientes
 	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "ingredients")
-	private Set<Integer> ingredients;*/
+	@CollectionTable(name = "orders_ingredients")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinColumn(name = "id")
+	private Set<Integer> order_ingredients = new HashSet<>();
 	
 	private Double discount;
 
 	public OrdersEntity() {}
 
-	public OrdersEntity(UserEntity user, Double total_due, Set<Integer> ingredients, Double discount) {
+	public OrdersEntity(UserEntity user, Double total_due, Set<Integer> order_ingredients, Double discount) {
 		super();
 		this.user = user;
 		this.total_due = total_due;
-		//this.ingredients = ingredients;
+		this.order_ingredients = order_ingredients;
 		this.discount = discount;
 	}
 	
@@ -67,13 +76,13 @@ public class OrdersEntity {
 		this.total_due = total_due;
 	}
 
-	/*public Set<Integer> getIngredients() {
-		return ingredients;
+	public Set<Integer> getIngredients() {
+		return order_ingredients;
 	}
 
-	public void setIngredients(Set<Integer> ingredients) {
-		this.ingredients = ingredients;
-	}*/
+	public void setIngredients(Set<Integer> order_ingredients) {
+		this.order_ingredients = order_ingredients;
+	}
 
 	public Double getDiscount() {
 		return discount;

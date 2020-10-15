@@ -15,7 +15,7 @@ import com.fitch.teste.enums.UserRoleEnum;
 import com.fitch.teste.exceptions.AuthorizationException;
 import com.fitch.teste.exceptions.NotFoundException;
 import com.fitch.teste.exceptions.UserAlreadyExistsException;
-import com.fitch.teste.respositories.UserRepository;
+import com.fitch.teste.repositories.UserRepository;
 
 @Service
 public class UserService {

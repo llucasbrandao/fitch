@@ -12,7 +12,7 @@ import com.fitch.teste.enums.UserRoleEnum;
 import com.fitch.teste.exceptions.AuthorizationException;
 import com.fitch.teste.exceptions.InvalidParameterException;
 import com.fitch.teste.exceptions.NotFoundException;
-import com.fitch.teste.respositories.IngredientsRepository;
+import com.fitch.teste.repositories.IngredientsRepository;
 
 @Service
 public class IngredientsService {

@@ -1,4 +1,4 @@
-package com.fitch.teste.respositories;
+package com.fitch.teste.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

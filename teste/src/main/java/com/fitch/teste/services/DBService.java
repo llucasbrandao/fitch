@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.fitch.teste.entities.UserEntity;
 import com.fitch.teste.enums.UserRoleEnum;
-import com.fitch.teste.respositories.UserRepository;
+import com.fitch.teste.repositories.UserRepository;
 
 @Component
 public class DBService {

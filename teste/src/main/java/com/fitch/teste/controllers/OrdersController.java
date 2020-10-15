@@ -5,9 +5,11 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fitch.teste.dto.GenericResponseDTO;
@@ -28,5 +30,10 @@ public class OrdersController {
 	@PostMapping("/new")
 	public ResponseEntity<GenericResponseDTO<?>> newOrder(@Valid @RequestBody OrdersDTO order) {
 		return new ResponseEntity<>(new GenericResponseDTO<>(ordersService.newOrder(order), HttpStatus.OK), HttpStatus.OK);
+	}
+	
+	@GetMapping("/getByID")
+	public ResponseEntity<GenericResponseDTO<?>> getByID(@RequestParam Long id) {
+		return new ResponseEntity<>(new GenericResponseDTO<>(ordersService.findOrderByID(id), HttpStatus.OK), HttpStatus.OK);
 	}
 }
