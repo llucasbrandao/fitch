@@ -37,8 +37,8 @@ class UserController {
 	}
 
 	@PostMapping("/new")
-	public ResponseEntity<GenericResponseDTO> newUser(@Valid @RequestBody UserDTO payload) {
-		return new ResponseEntity<>(new GenericResponseDTO("User created successfully. ID: " + userService.saveUser(UserService.fromDTO(payload)), 
+	public ResponseEntity<GenericResponseDTO<?>> newUser(@Valid @RequestBody UserDTO payload) {
+		return new ResponseEntity<>(new GenericResponseDTO<String>("User created successfully. ID: " + userService.saveUser(UserService.fromDTO(payload)), 
 				HttpStatus.CREATED), HttpStatus.CREATED);
 	}
 	
@@ -53,8 +53,8 @@ class UserController {
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<GenericResponseDTO> deleteUser(@PathVariable("id") Long id) {
+	public ResponseEntity<GenericResponseDTO<?>> deleteUser(@PathVariable("id") Long id) {
 		
-		return new ResponseEntity<>(new GenericResponseDTO(Boolean.toString(userService.delete(id)), HttpStatus.OK), HttpStatus.OK);
+		return new ResponseEntity<>(new GenericResponseDTO<String>(Boolean.toString(userService.delete(id)), HttpStatus.OK), HttpStatus.OK);
 	}
 }

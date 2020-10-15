@@ -55,10 +55,12 @@ public class UserService {
 		if (authenticated() == null || !authenticated().hasRole(UserRoleEnum.ROLE_ADMIN) && !email.equals(authenticated().getUsername()))
 			throw new AuthorizationException("Access denied. User is either not logged or is trying to access protected content");
 		
-		if (userRepository.findByEmail(email) == null)
+		UserEntity user = userRepository.findByEmail(email);
+		
+		if (user == null)
 			throw new NotFoundException("No user was found with email: " + email);
 		
-		return userRepository.findByEmail(email);
+		return user;
 	}
 	
 	public boolean delete(Long id) {

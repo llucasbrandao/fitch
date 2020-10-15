@@ -29,11 +29,11 @@ public class OrdersEntity {
 	@Column(nullable = false)
 	private Double total_due;
 	
-	// Ao buscar um pedido, já traz junto seus respectivos ingredientes
+	/*// Ao buscar um pedido, já traz junto seus respectivos ingredientes
 	@Column(nullable = false)
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "ingredients")
-	private Set<Integer> ingredients;
+	private Set<Integer> ingredients;*/
 	
 	private Double discount;
 
@@ -43,7 +43,7 @@ public class OrdersEntity {
 		super();
 		this.user = user;
 		this.total_due = total_due;
-		this.ingredients = ingredients;
+		//this.ingredients = ingredients;
 		this.discount = discount;
 	}
 	
@@ -67,13 +67,13 @@ public class OrdersEntity {
 		this.total_due = total_due;
 	}
 
-	public Set<Integer> getIngredients() {
+	/*public Set<Integer> getIngredients() {
 		return ingredients;
 	}
 
 	public void setIngredients(Set<Integer> ingredients) {
 		this.ingredients = ingredients;
-	}
+	}*/
 
 	public Double getDiscount() {
 		return discount;

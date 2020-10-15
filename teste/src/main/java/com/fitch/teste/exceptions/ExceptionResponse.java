@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.springframework.http.HttpStatus;
 
-public class ExceptionResponse extends Throwable implements Serializable {
+public class ExceptionResponse implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -13,6 +13,13 @@ public class ExceptionResponse extends Throwable implements Serializable {
 	private String message;
 	private String details;
 	private HttpStatus httpStatus;
+	
+	public <T> ExceptionResponse(Date timestamp, T message, String details, HttpStatus httpStatus) {
+		super();
+		this.timestamp = timestamp;
+		this.message = (String) message;
+		this.details = details;
+	}
 	
 	public ExceptionResponse(Date timestamp, String message, String details) {
 		super();

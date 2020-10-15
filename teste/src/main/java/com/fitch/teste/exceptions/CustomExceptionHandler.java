@@ -27,12 +27,12 @@ public class CustomExceptionHandler {
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}*/
 	
-	@ExceptionHandler(value = {GenericException.class})
-	public final ResponseEntity<ExceptionResponse> handleGenericException(GenericException ex, WebRequest request) {
+	@ExceptionHandler(value = {Throwable.class})
+	public final ResponseEntity<ExceptionResponse> handleGenericException(Throwable ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.INTERNAL_SERVER_ERROR);
 		
-		return new ResponseEntity<>(exceptionResponse, ex.getHttpStatus());
+		return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 	@ExceptionHandler(value = {NotFoundException.class})

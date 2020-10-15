@@ -7,12 +7,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 @Entity
 @Table(name = "ingredients")
+@DynamicUpdate // Atualiza apenas os campos que mudarem
 public class IngredientsEntity {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "id")
 	private Long id;
 	
 	@Column(unique = true, nullable = false)
@@ -27,7 +31,6 @@ public class IngredientsEntity {
 	public IngredientsEntity() {}
 	
 	public IngredientsEntity(String name, Long available_quantity, Double price) {
-		super();
 		this.name = name;
 		this.available_quantity = available_quantity;
 		this.price = price;

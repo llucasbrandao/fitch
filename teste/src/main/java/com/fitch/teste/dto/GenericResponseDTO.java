@@ -4,11 +4,18 @@ import java.io.Serializable;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * Esta classe foi criada para padronizar as respostas HTTP.
+ * 
+ * @author Lucas Brandão
+ *
+ * @param <T>
+ */
 public class GenericResponseDTO<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private T message;
+	private T message; // Para maior conveniência e flexibilidade, usamos o tipo genérico na mensagem
 	private HttpStatus status;
 	
 	public GenericResponseDTO(T message, HttpStatus status) {
