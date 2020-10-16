@@ -18,8 +18,14 @@ import com.fitch.teste.dto.OrdersDTO;
 import com.fitch.teste.exceptions.InvalidParameterException;
 import com.fitch.teste.services.OrdersService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+
 @RestController
 @RequestMapping("/api/v1/orders")
+@Api(value = "/api/v1/docs/orders")
+@ApiOperation(value = "", authorizations = { @Authorization(value="JWT") })
 public class OrdersController {
 	
 	@Autowired

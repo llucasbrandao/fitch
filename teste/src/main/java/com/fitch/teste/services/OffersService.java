@@ -3,6 +3,7 @@ package com.fitch.teste.services;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class OffersService {
 		return null;
 	}
 	
-	public AppliedOffersOrder findByOrder(OrdersEntity order) {
+	public Set<AppliedOffersOrder> findByOrder(OrdersEntity order) {
 		if (order != null)
 			return appliedOfferOrderRepository.findByOrder(order);
 		
@@ -47,38 +48,54 @@ public class OffersService {
 	 * Processa as promoções do pedido.
 	 */
 	public OrdersEntity applyDiscount(OrdersEntity ordersEntity, List<OrderIngredientsEntity> orderIngredientsEntity) {
+		AppliedOffersOrder aplOffers;
+		
 		// Armazena quantas vezes um ingrediente aparece no pedido.
 		Map<String, Integer> promoQnt = new HashMap<>();
 		
 		// Para conveniência, salvamos os preços dos ingredientes.
 		Map<String, Double> ingredientsPrice = new HashMap<>();
 		
+		// Inicializamos as quantidades de cada ingrediente como 0. 
+		promoQnt.put("Alface", 0);
+		promoQnt.put("Bacon", 0);
+		promoQnt.put("Hambúrguer", 0);
+		promoQnt.put("Queijo", 0);
+		
+		// Define o preço inicial padrão
+		ordersEntity.setOriginal_total(0.00);
+		
 		// Pega a quantidade de cada ingrediente
 		for (OrderIngredientsEntity ingred : orderIngredientsEntity) {
 			switch (ingred.getIngredient().getName()) {
 				case "Alface":
-					promoQnt.put("Alface", promoQnt.get("Alface") + 1);
+					promoQnt.put(ingred.getIngredient().getName(), Integer.parseInt(ingred.getQuantity().toString()));
 					ingredientsPrice.put(ingred.getIngredient().getName(), ingred.getIngredient().getPrice());
 					
 					break;
 				
 				case "Bacon":
-					promoQnt.put("Bacon", promoQnt.get("Bacon") + 1);
+					promoQnt.put(ingred.getIngredient().getName(), Integer.parseInt(ingred.getQuantity().toString()));
 					ingredientsPrice.put(ingred.getIngredient().getName(), ingred.getIngredient().getPrice());
 					
 					break;
 					
 				case "Hambúrguer":
-					promoQnt.put("Hambúrguer", promoQnt.get("Hambúrguer") + 1);
+					promoQnt.put(ingred.getIngredient().getName(), Integer.parseInt(ingred.getQuantity().toString()));
 					ingredientsPrice.put(ingred.getIngredient().getName(), ingred.getIngredient().getPrice());
 					
 					break;
 					
 				case "Queijo":
-					promoQnt.put("Queijo", promoQnt.get("Queijo") + 1);
+					promoQnt.put(ingred.getIngredient().getName(), Integer.parseInt(ingred.getQuantity().toString()));
 					ingredientsPrice.put(ingred.getIngredient().getName(), ingred.getIngredient().getPrice());
 			}
 		}
+		
+		// Define o preço total do pedido, antes de aplicar possíveis descontos.
+		for (Map.Entry<String, Double> original_prices : ingredientsPrice.entrySet())
+			ordersEntity.setOriginal_total(ordersEntity.getOriginal_total() + 
+					(ingredientsPrice.get(original_prices.getKey()) * promoQnt.get(original_prices.getKey())));
 		
 		// Define os descontos
 		
@@ -88,31 +105,47 @@ public class OffersService {
 		 */
 		if (promoQnt.get("Alface") != null && promoQnt.get("Bacon") == null)
 			// Light: Se tem alface e não tem bacon, 10% de desconto.
-			ordersEntity.setDiscount(ordersEntity.getTotal_due() * 10 / 100);
-			ordersEntity.setTotal_due(ordersEntity.getTotal_due() - ordersEntity.getDiscount());
-			ordersEntity.setAplAppliedOffersOrder(new AppliedOffersOrder(ordersEntity, "Light"));
+			ordersEntity.setDiscount((ingredientsPrice.get("Alface") * 10) / 100);
+			// Definimos o preço total original, para aplicarmos o desconto em cima dele.
+			ordersEntity.setTotal_due(promoQnt.get("Alface") * ingredientsPrice.get("Alface"));
+			
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Light", "Se tem alface e não tem bacon, 10% de desconto");
+			
+			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
 		
-		if (promoQnt.get("Hambúrguer") >= 3) {
+		if (promoQnt.get("Hambúrguer") != null && promoQnt.get("Hambúrguer") >= 3) {
 			/*Muita carne: A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6
 			porções, o cliente pagará 4 e assim sucessivamente.*/
 			
 			/*
 			 * O desconto final será calculado pela (quantidade do ingrediente no pedido / 3) * 2 * o preço do ingrediente.
 			 */
-			ordersEntity.setDiscount((promoQnt.get("Hambúrguer") / 3) * 2 * ingredientsPrice.get("Hambúrguer"));
-			ordersEntity.setTotal_due(ordersEntity.getTotal_due() - ordersEntity.getDiscount());
-			ordersEntity.setAplAppliedOffersOrder(new AppliedOffersOrder(ordersEntity, "Muita carne"));
+			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Hambúrguer") / 3) * 2 * ingredientsPrice.get("Hambúrguer"));
+			// Definimos o preço total original, para aplicarmos o desconto em cima dele.
+			ordersEntity.setTotal_due(ordersEntity.getTotal_due() + promoQnt.get("Hambúrguer") * ingredientsPrice.get("Hambúrguer"));
+			
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Muita Carne", "A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6\n"
+					+ "	porções, o cliente pagará 4 e assim sucessivamente.");
+			
+			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
 			
 		} 
 		
-		if (promoQnt.get("Queijo") >= 3) {
+		if (promoQnt.get("Queijo") != null && promoQnt.get("Queijo") >= 3) {
 			/*Muito queijo: A cada 3 porções de queijo o cliente só paga 2, a cada 6
 				porções, o cliente pagará 4 e assim sucessivamente.*/
 			
-			ordersEntity.setDiscount((promoQnt.get("Queijo") / 3) * 2 * ingredientsPrice.get("Queijo"));
-			ordersEntity.setTotal_due(ordersEntity.getTotal_due() - ordersEntity.getDiscount());
-			ordersEntity.setAplAppliedOffersOrder(new AppliedOffersOrder(ordersEntity, "Queijo"));
+			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Queijo") / 3) * 2 * ingredientsPrice.get("Queijo"));
+			ordersEntity.setTotal_due(promoQnt.get("Queijo") * ingredientsPrice.get("Queijo"));
+			
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Muito Queijo", "A cada 3 porções de queijo o cliente só paga 2, a cada 6\n"
+					+ " porções, o cliente pagará 4 e assim sucessivamente.");
+			
+			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
 		}
+		
+		// Aplica o desconto.
+		ordersEntity.setTotal_due(ordersEntity.getOriginal_total() - ordersEntity.getDiscount());
 		
 		return ordersEntity;
 	}

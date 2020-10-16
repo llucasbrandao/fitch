@@ -19,14 +19,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @ControllerAdvice
 public class CustomExceptionHandler {
 	
-	/*@ExceptionHandler(value = {Exception.class, RuntimeException.class})
-	public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
-		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
-		
-		return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-	}*/
-	
 	@ExceptionHandler(value = {Throwable.class})
 	public final ResponseEntity<ExceptionResponse> handleGenericException(Throwable ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
@@ -38,7 +30,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {NotFoundException.class})
 	public final ResponseEntity<ExceptionResponse> handleNotFoundException(Exception ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.NOT_FOUND);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
 	}
@@ -46,7 +38,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {UserAlreadyExistsException.class})
 	public final ResponseEntity<ExceptionResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.CONFLICT);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.CONFLICT);
 	}
@@ -54,7 +46,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(JsonMappingException.class)
 	public final ResponseEntity<ExceptionResponse> handleJsonMappingException(JsonMappingException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.NOT_FOUND);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
 	}
@@ -74,7 +66,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {HttpMessageNotReadableException.class})
 	public final ResponseEntity<ExceptionResponse> handleArgumentNotValidException(HttpMessageNotReadableException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.BAD_REQUEST);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 	}
@@ -82,7 +74,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {AccessDeniedException.class})
 	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.FORBIDDEN);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
 	}
@@ -90,7 +82,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {AuthorizationException.class})
 	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(AuthorizationException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.UNAUTHORIZED);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.UNAUTHORIZED);
 	}
@@ -98,7 +90,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {InvalidParameterException.class})
 	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(InvalidParameterException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.BAD_REQUEST);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
 	}
@@ -106,7 +98,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {HttpRequestMethodNotSupportedException.class})
 	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(HttpRequestMethodNotSupportedException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.METHOD_NOT_ALLOWED);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
 	}
@@ -114,7 +106,7 @@ public class CustomExceptionHandler {
 	@ExceptionHandler(value = {MissingServletRequestParameterException.class})
 	public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(MissingServletRequestParameterException ex, WebRequest request) {
 		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(), ex.getMessage(), 
-				request.getDescription(false));
+				request.getDescription(false), HttpStatus.METHOD_NOT_ALLOWED);
 		
 		return new ResponseEntity<>(exceptionResponse, HttpStatus.METHOD_NOT_ALLOWED);
 	}

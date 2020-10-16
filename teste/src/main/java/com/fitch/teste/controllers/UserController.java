@@ -35,7 +35,7 @@ class UserController {
 	UserController(UserService userService) {
 		this.userService = userService;
 	}
-
+	
 	@PostMapping("/new")
 	public ResponseEntity<GenericResponseDTO<?>> newUser(@Valid @RequestBody UserDTO payload) {
 		return new ResponseEntity<>(new GenericResponseDTO<String>("User created successfully. ID: " + userService.saveUser(UserService.fromDTO(payload)), 

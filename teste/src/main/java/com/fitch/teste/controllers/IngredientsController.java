@@ -23,6 +23,9 @@ import com.fitch.teste.dto.IngredientsDTO;
 import com.fitch.teste.entities.IngredientsEntity;
 import com.fitch.teste.services.IngredientsService;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+
 @RestController
 @RequestMapping("/api/v1/ingredients")
 public class IngredientsController {
@@ -42,6 +45,7 @@ public class IngredientsController {
 	}
 	
 	@GetMapping("/getAll")
+	@ApiOperation(value = "Greets the world or Niteroi", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> getAll() {
 		return new ResponseEntity<>(new GenericResponseDTO<List<IngredientsEntity>>(ingredientsService.findAll(), 
 				HttpStatus.OK), HttpStatus.OK);

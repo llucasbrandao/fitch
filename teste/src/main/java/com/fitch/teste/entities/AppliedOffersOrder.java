@@ -1,5 +1,6 @@
 package com.fitch.teste.entities;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,17 +19,22 @@ public class AppliedOffersOrder {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	@CollectionTable(name = "order")
 	@JoinColumn(name = "order_id")
 	private OrdersEntity order;
 	
 	private String name;
+	
+	private String description;
 
-	public AppliedOffersOrder(OrdersEntity order, String name) {
+	public AppliedOffersOrder() {}
+
+	public AppliedOffersOrder(OrdersEntity order, String name, String description) {
 		super();
 		this.order = order;
 		this.name = name;
+		this.description = description;
 	}
 
 	public Long getId() {
@@ -49,5 +55,13 @@ public class AppliedOffersOrder {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

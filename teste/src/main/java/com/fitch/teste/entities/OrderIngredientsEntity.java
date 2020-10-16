@@ -1,5 +1,6 @@
 package com.fitch.teste.entities;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -18,19 +19,17 @@ public class OrderIngredientsEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	@CollectionTable(name = "order")
 	@JoinColumn(name = "order_id")
 	private OrdersEntity order;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
 	@CollectionTable(name = "ingredients")
 	@JoinColumn(name = "ingredient_id")
 	private IngredientsEntity ingredient;
 	
 	private String snack;
-	
-	private Integer snack_qnt;
 	
 	private Long quantity;
 	
@@ -44,9 +43,8 @@ public class OrderIngredientsEntity {
 		this.quantity = quantity;
 	}
 	
-	public OrderIngredientsEntity(String snack, Integer snack_qnt, OrdersEntity order, Long quantity) {
+	public OrderIngredientsEntity(String snack, OrdersEntity order, Long quantity) {
 		this.snack = snack;
-		this.snack_qnt = snack_qnt;
 		this.order = order;
 		this.quantity = quantity;
 	}
@@ -69,14 +67,6 @@ public class OrderIngredientsEntity {
 
 	public void setSnack(String snack) {
 		this.snack = snack;
-	}
-
-	public Integer getSnack_qnt() {
-		return snack_qnt;
-	}
-
-	public void setSnack_qnt(Integer snack_qnt) {
-		this.snack_qnt = snack_qnt;
 	}
 
 	public IngredientsEntity getIngredient() {

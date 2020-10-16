@@ -2,11 +2,15 @@ package com.fitch.teste.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import com.fitch.teste.entities.UserEntity;
 
+/*
+ * Classe DTO auxiliar para response.
+ */
 public class OrdersResponseDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -19,7 +23,13 @@ public class OrdersResponseDTO implements Serializable {
 	
 	private Double discount;
 	
+	private Double original_price;
+	
+	private Date created_at;
+	
 	private List<Map<String, String>> order_ingredients = new ArrayList<>();
+	
+	private List<Map<String, String>> order_offers = new ArrayList<>();
 
 	public OrdersResponseDTO(Long id, UserEntity user, Double total_due, Double discount) {
 		super();
@@ -67,5 +77,29 @@ public class OrdersResponseDTO implements Serializable {
 
 	public void setOrder_ingredients(List<Map<String, String>> order_ingredients) {
 		this.order_ingredients = order_ingredients;
+	}
+
+	public List<Map<String, String>> getOrder_offers() {
+		return order_offers;
+	}
+
+	public void setOrder_offers(List<Map<String, String>> order_offers) {
+		this.order_offers = order_offers;
+	}
+
+	public Double getOriginal_price() {
+		return original_price;
+	}
+
+	public void setOriginal_price(Double original_price) {
+		this.original_price = original_price;
+	}
+
+	public Date getCreated_at() {
+		return created_at;
+	}
+
+	public void setCreated_at(Date created_at) {
+		this.created_at = created_at;
 	}
 }

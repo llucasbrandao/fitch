@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.fitch.teste.authentication.UserAuthentication;
 import com.fitch.teste.dto.OrdersDTO;
 import com.fitch.teste.dto.OrdersResponseDTO;
+import com.fitch.teste.entities.AppliedOffersOrder;
 import com.fitch.teste.entities.IngredientsEntity;
 import com.fitch.teste.entities.OrderIngredientsEntity;
 import com.fitch.teste.entities.OrdersEntity;
@@ -51,12 +52,14 @@ public class OrdersService {
 		Set<Integer> ingredIntegers = new HashSet<>();
 		IngredientsEntity tempIngredientsEntity;
 		OrdersEntity ordersEntity = fromDTO(ordersDTO);
+		
+		Long finalOrderID = Integer.toUnsignedLong(0);
 
 		/*
 		 * Extrai o id do Map, que refere-se aos ingredientes constantes no pedido,
 		 * e adiciona-os a um Set, verificando para que não haja valores repetidos.
 		 */
-		if (ordersDTO.getSnack() != "") {
+		if (ordersDTO.getSnack() != null && ordersDTO.getSnack() != "") {
 			boolean foundSnack = false;
 			double total_due = 0;
 			
@@ -70,28 +73,42 @@ public class OrdersService {
 			if (!foundSnack)
 				throw new NotFoundException("No snack was found with name: " + ordersDTO.getSnack());
 			
+			ordersEntity.setOriginal_total(total_due);
 			ordersEntity.setTotal_due(total_due);
 			
 			/*
 			 * Salvamos o pedido e o snack.
 			 */
 			
+			ordersRepository.save(ordersEntity);
+			
 			orderIngredientsRepository.save(
 					new OrderIngredientsEntity(
 							ordersDTO.getSnack(), 
-							ordersDTO.getSnack_qnt() != null ? ordersDTO.getSnack_qnt() : 1, // Quantidade padrão é 1
 							ordersEntity, 
-							Integer.toUnsignedLong(1)));
+							Integer.toUnsignedLong(ordersDTO.getSnack_qnt() != null ? ordersDTO.getSnack_qnt() : 1)));
 		
 		} else if (ordersDTO.getIngredients() != null) {
 			/*
 			 * Adicionamos os ingredientes ao pedido, a partir do DTO.
 			 */
-			for (Map<String, Object> map : ordersDTO.getIngredients())
-				for (Map.Entry<String, Object> entry : map.entrySet())
-					if (entry.getKey().equals("id")) 
-						if (!ingredIntegers.contains(Integer.parseInt(entry.getValue().toString())))
-							ingredIntegers.add(Integer.parseInt(entry.getValue().toString()));
+			for (Map<String, Object> map : ordersDTO.getIngredients()) {
+				for (Map.Entry<String, Object> entry : map.entrySet()) {
+					if (entry.getKey().equals("id"))
+						try {
+							if (!ingredIntegers.contains(Integer.parseInt(entry.getValue().toString())))
+								ingredIntegers.add(Integer.parseInt(entry.getValue().toString()));
+							
+						} catch (Exception e) {
+							throw new InvalidParameterException("The provided ID is invalid.");
+							
+						}
+				}
+			}
+
+			if (ingredIntegers.size() == 0)
+				throw new InvalidParameterException("No ingredient ID was found. "
+						+ "Please double check your order and be sure to inform at least one valid ingredient ID.");
 			
 			/*
 			 * Salvamos os ingredientes do pedido no DB.
@@ -103,9 +120,10 @@ public class OrdersService {
 			for (Integer i : ingredIntegers) {
 				for (int j = 0; j < ingredIntegers.size(); j++) {
 					// Verificamos se o ID do Map equivale ao do ingrediente em questão.
-					// Sendo, salvamos o pedido.
+					// Sendo, adicionamos o ingrediente.
 					if (Integer.parseInt(ordersDTO.getIngredients().get(j).get("id").toString()) == i) {
 						tempIngredientsEntity = ingredientsService.findByID(Integer.toUnsignedLong(i)).get();
+						
 						orderIngredientsEntities.add(new OrderIngredientsEntity(tempIngredientsEntity, ordersEntity, 
 								Long.parseLong(ordersDTO.getIngredients().get(j).get("quantity").toString())));
 						
@@ -114,7 +132,13 @@ public class OrdersService {
 			}
 			
 			// Validação de desconto, se aplicável.
-			offersService.applyDiscount(ordersEntity, orderIngredientsEntities);
+			finalOrderID = ordersRepository.save(ordersEntity).getId();
+			
+			/*
+			 * Verificamos e aplicamos possíveis descontos.
+			 * O preços totais e originais (antes de aplicar desconto) são definidos no offersService.applyDiscount().
+			 */
+			ordersRepository.save(offersService.applyDiscount(ordersRepository.findById(finalOrderID).get(), orderIngredientsEntities));
 			
 			// Salvamos os ingredientes do pedido no banco.
 			for (OrderIngredientsEntity orderIngred : orderIngredientsEntities)
@@ -122,7 +146,7 @@ public class OrdersService {
 			
 		} else throw new InvalidParameterException("You must inform either 'snack' name or the ingredients list"); 
 		
-		return ordersRepository.save(ordersEntity).getId();
+		return finalOrderID;
 	}
 	
 	public OrdersResponseDTO findOrderByID(Long id) {
@@ -149,13 +173,13 @@ public class OrdersService {
 				 * Monta o response DTO conforme o pedido.
 				 * Verifica se é snack, ou avulso.
 				 */
-				if (orderIngredientsEntity.getSnack() != "") {
+				if (orderIngredientsEntity.getSnack() != null && orderIngredientsEntity.getSnack() != "") {
 					mapIngredients.put("snack", orderIngredientsEntity.getSnack());
 					
 					for (SnacksEntity snack :  snacksService.generateDummySnacks()) 
 						if (snack.getName().equals(orderIngredientsEntity.getSnack())) {
 							mapIngredients.put("price", String.valueOf(calculateSnackPrice(snack)));
-							mapIngredients.put("quantity", orderIngredientsEntity.getSnack_qnt().toString());
+							mapIngredients.put("quantity", orderIngredientsEntity.getQuantity().toString());
 						}
 				
 				} else {
@@ -168,6 +192,19 @@ public class OrdersService {
 			}
 			
 			ordersResponseDTO.setOrder_ingredients(ingredientsMapList);
+			
+			Set<AppliedOffersOrder> offersOrders = offersService.findByOrder(ordersEntity.get());
+			List<Map<String, String>> offersList = new ArrayList<>();
+			Map<String, String> offersDTO = new HashMap<>();
+			
+			for (AppliedOffersOrder offer : offersOrders)
+				offersDTO.put(offer.getName(), offer.getDescription());
+			
+			offersList.add(offersDTO);
+			
+			ordersResponseDTO.setOrder_offers(offersList);
+			ordersResponseDTO.setOriginal_price(ordersEntity.get().getOriginal_total());
+			ordersResponseDTO.setCreated_at(ordersEntity.get().getCreated_at());
 			
 			return ordersResponseDTO;
 		}
@@ -211,7 +248,7 @@ public class OrdersService {
 	
 	public OrdersEntity fromDTO(OrdersDTO ordersDTO) {
 		return new OrdersEntity(userService.findUserByID(UserService.authenticated().getID()).get(), 
-				0.00, 0.00);
+				0.00, 0.00, 0.00);
 	}
 	
 	public Optional<OrdersResponseDTO> fromEntity(OrdersEntity ordersEntity) {

@@ -26,6 +26,9 @@ public class UserService {
 	private static BCryptPasswordEncoder pe = new BCryptPasswordEncoder();
 	
 	public Long saveUser(UserEntity user) throws UserAlreadyExistsException {
+		/*
+		 * Aqui devem ser implementadas validações mais avançadas do usuário.
+		 */
 		if (this.userRepository.findByEmail(user.getEmail()) == null) {
 			return this.userRepository.save(user).getId();
 		}
