@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.constraints.NotEmpty;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class OrdersDTO implements Serializable {

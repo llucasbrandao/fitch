@@ -45,8 +45,6 @@ public class OrdersService {
 		Set<Integer> ingredIntegers = new HashSet<>();
 		IngredientsEntity tempIngredientsEntity;
 		OrdersEntity ordersEntity = fromDTO(ordersDTO);
-		
-		Long orderId = Integer.toUnsignedLong(0); 
 
 		/*
 		 * Extrai o id do Map, que refere-se aos ingredientes constantes no pedido,
@@ -71,7 +69,7 @@ public class OrdersService {
 			/*
 			 * Salvamos o pedido e o snack.
 			 */
-			orderId = ordersRepository.save(ordersEntity).getId();
+			
 			orderIngredientsRepository.save(
 					new OrderIngredientsEntity(
 							ordersDTO.getSnack(), 
