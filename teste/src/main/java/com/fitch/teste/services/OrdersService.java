@@ -32,13 +32,19 @@ public class OrdersService {
 	private OrdersRepository ordersRepository;
 	
 	@Autowired
-	private UserService userService;
+	private OrderIngredientsRepository orderIngredientsRepository;
+	
+	@Autowired
+	private OffersService offersService;
 	
 	@Autowired
 	private IngredientsService ingredientsService;
 	
 	@Autowired
-	private OrderIngredientsRepository orderIngredientsRepository;
+	private UserService userService;
+	
+	@Autowired
+	private SnacksService snacksService;
 	
 	public Long newOrder(OrdersDTO ordersDTO) {
 		// Este objeto terá os IDs dos ingredientes do pedido.
@@ -54,7 +60,7 @@ public class OrdersService {
 			boolean foundSnack = false;
 			double total_due = 0;
 			
-			for (SnacksEntity snack : generateDummySnacks()) {
+			for (SnacksEntity snack : snacksService.generateDummySnacks()) {
 				if (snack.getName().equals(ordersDTO.getSnack())) {
 					foundSnack = true;
 					total_due = calculateSnackPrice(snack);
@@ -78,26 +84,41 @@ public class OrdersService {
 							Integer.toUnsignedLong(1)));
 		
 		} else if (ordersDTO.getIngredients() != null) {
+			/*
+			 * Adicionamos os ingredientes ao pedido, a partir do DTO.
+			 */
 			for (Map<String, Object> map : ordersDTO.getIngredients())
 				for (Map.Entry<String, Object> entry : map.entrySet())
 					if (entry.getKey().equals("id")) 
 						if (!ingredIntegers.contains(Integer.parseInt(entry.getValue().toString())))
 							ingredIntegers.add(Integer.parseInt(entry.getValue().toString()));
-					
+			
+			/*
+			 * Salvamos os ingredientes do pedido no DB.
+			 */
+			
+			// Lista auxiliar para calcularmos descontos baseados em ingredientes.
+			List<OrderIngredientsEntity> orderIngredientsEntities = new ArrayList<>();
+			
 			for (Integer i : ingredIntegers) {
 				for (int j = 0; j < ingredIntegers.size(); j++) {
 					// Verificamos se o ID do Map equivale ao do ingrediente em questão.
 					// Sendo, salvamos o pedido.
 					if (Integer.parseInt(ordersDTO.getIngredients().get(j).get("id").toString()) == i) {
 						tempIngredientsEntity = ingredientsService.findByID(Integer.toUnsignedLong(i)).get();
+						orderIngredientsEntities.add(new OrderIngredientsEntity(tempIngredientsEntity, ordersEntity, 
+								Long.parseLong(ordersDTO.getIngredients().get(j).get("quantity").toString())));
 						
-						orderIngredientsRepository.save(
-								new OrderIngredientsEntity(tempIngredientsEntity, ordersEntity, 
-										Long.parseLong(ordersDTO.getIngredients().get(j).get("quantity").toString())							)
-						);
 					}
 				}
 			}
+			
+			// Validação de desconto, se aplicável.
+			offersService.applyDiscount(ordersEntity, orderIngredientsEntities);
+			
+			// Salvamos os ingredientes do pedido no banco.
+			for (OrderIngredientsEntity orderIngred : orderIngredientsEntities)
+				orderIngredientsRepository.save(orderIngred);
 			
 		} else throw new InvalidParameterException("You must inform either 'snack' name or the ingredients list"); 
 		
@@ -131,7 +152,7 @@ public class OrdersService {
 				if (orderIngredientsEntity.getSnack() != "") {
 					mapIngredients.put("snack", orderIngredientsEntity.getSnack());
 					
-					for (SnacksEntity snack : generateDummySnacks()) 
+					for (SnacksEntity snack :  snacksService.generateDummySnacks()) 
 						if (snack.getName().equals(orderIngredientsEntity.getSnack())) {
 							mapIngredients.put("price", String.valueOf(calculateSnackPrice(snack)));
 							mapIngredients.put("quantity", orderIngredientsEntity.getSnack_qnt().toString());
@@ -178,46 +199,14 @@ public class OrdersService {
 		return ingredientsEntities;
 	}
 	
-	public void applyDiscount(OrdersEntity ordersEntity, List<OrderIngredientsEntity> orderIngredientsEntity) {
-		Map<String, Integer> promoQnt = new HashMap<>();
+	// Calcula o preço dos lanches com base em seus ingredientes.
+	public static double calculateSnackPrice(SnacksEntity snackEntity) {
+		double snackPrice = 0;
 		
-		double discount = 0;
-		double finalPrice = 0;
+		for (IngredientsEntity ingred : snackEntity.getIngredients())
+			snackPrice += ingred.getPrice();
 		
-		for (OrderIngredientsEntity ingred : orderIngredientsEntity) {
-			switch (ingred.getIngredient().getName()) {
-				case "Alface":
-					promoQnt.put("Alface", promoQnt.get("Alface") + 1);
-					break;
-				
-				case "Bacon":
-					promoQnt.put("Bacon", promoQnt.get("Bacon") + 1);
-					break;
-					
-				case "Hambúrguer":
-					promoQnt.put("Hambúrguer", promoQnt.get("Hambúrguer") + 1);
-					break;
-					
-				case "Queijo":
-					promoQnt.put("Queijo", promoQnt.get("Queijo") + 1);
-			}
-		}
-		
-		if (promoQnt.get("Alface") != null && promoQnt.get("Bacon") == null)
-			// Light: 10% de desconto
-			return;
-		
-		else if (promoQnt.get("Alface") != null && promoQnt.get("Bacon") == null)
-			/*Muita carne: A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6
-			porções, o cliente pagará 4 e assim sucessivamente.*/
-			return;
-		
-		else if (promoQnt.get("Alface") != null && promoQnt.get("Bacon") == null)
-			/*Muito queijo: A cada 3 porções de queijo o cliente só paga 2, a cada 6
-				porções, o cliente pagará 4 e assim sucessivamente.*/
-			return;
-		
-		// Inserir a promoção no DTO de retorno e no banco
+		return snackPrice;
 	}
 	
 	public OrdersEntity fromDTO(OrdersDTO ordersDTO) {
@@ -228,87 +217,5 @@ public class OrdersService {
 	public Optional<OrdersResponseDTO> fromEntity(OrdersEntity ordersEntity) {
 		return Optional.of(new OrdersResponseDTO(ordersEntity.getId(), ordersEntity.getUser(), ordersEntity.getTotal_due(), 
 				ordersEntity.getDiscount()));
-	}
-	
-	/*
-	 * Método que cria os dummy snacks.
-	 */
-	private List<SnacksEntity> generateDummySnacks() {
-		SnacksEntity snacksEntity;
-		
-		List<SnacksEntity> dummySnacksEntities = new ArrayList<>();
-		List<IngredientsEntity> ingredientsEntities = new ArrayList<>();
-		
-		/*
-		 * Gera X-Bacon: Bacon, hambúrguer de carne e queijo
-		 */
-		ingredientsEntities.add(ingredientsService.findByName("Bacon"));
-		ingredientsEntities.add(ingredientsService.findByName("Hambúrguer"));
-		ingredientsEntities.add(ingredientsService.findByName("Queijo"));
-		
-		snacksEntity = new SnacksEntity("X-Bacon", ingredientsEntities);
-		
-		dummySnacksEntities.add(snacksEntity);
-		
-		// FIM X-Bacon
-		
-		/**
-		 * Gera X-Burger: Hambúrguer de carne e queijo
-		 */
-		
-		ingredientsEntities = new ArrayList<>();
-		
-		ingredientsEntities.add(ingredientsService.findByName("Hambúrguer"));
-		ingredientsEntities.add(ingredientsService.findByName("Queijo"));
-		
-		snacksEntity = new SnacksEntity("X-Burger", ingredientsEntities);
-		
-		dummySnacksEntities.add(snacksEntity);
-		
-		// FIM X-Burger
-		
-		/*
-		 * Gera X-Egg: Ovo, hambúrguer de carne e queijo
-		 */
-		
-		ingredientsEntities = new ArrayList<>();
-		
-		ingredientsEntities.add(ingredientsService.findByName("Ovo"));
-		ingredientsEntities.add(ingredientsService.findByName("Hambúrguer"));
-		ingredientsEntities.add(ingredientsService.findByName("Queijo"));
-		
-		snacksEntity = new SnacksEntity("X-Egg", ingredientsEntities);
-		
-		dummySnacksEntities.add(snacksEntity);
-		
-		// FIM X-Egg
-		
-		/*
-		 * Gera X-Egg Bacon: Ovo, bacon, hambúrguer de carne e queijo
-		 */
-		
-		ingredientsEntities = new ArrayList<>();
-		
-		ingredientsEntities.add(ingredientsService.findByName("Ovo"));
-		ingredientsEntities.add(ingredientsService.findByName("Hambúrguer"));
-		ingredientsEntities.add(ingredientsService.findByName("Queijo"));
-		ingredientsEntities.add(ingredientsService.findByName("Bacon"));
-		
-		snacksEntity = new SnacksEntity("X-Egg Bacon", ingredientsEntities);
-		
-		dummySnacksEntities.add(snacksEntity);
-		
-		// FIM X-Egg Bacon
-		
-		return dummySnacksEntities;
-	}
-	
-	public static double calculateSnackPrice(SnacksEntity snackEntity) {
-		double snackPrice = 0;
-		
-		for (IngredientsEntity ingred : snackEntity.getIngredients())
-			snackPrice += ingred.getPrice();
-		
-		return snackPrice;
 	}
 }

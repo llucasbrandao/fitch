@@ -29,6 +29,11 @@ public class OrdersEntity {
 	private Double total_due;
 	
 	private Double discount;
+	
+	@ManyToOne(fetch = FetchType.EAGER)
+	@CollectionTable(name = "applied_offers")
+	@JoinColumn(name = "offer_id")
+	private AppliedOffersOrder aplAppliedOffersOrder;
 
 	public OrdersEntity() {}
 
@@ -37,6 +42,14 @@ public class OrdersEntity {
 		this.user = user;
 		this.total_due = total_due;
 		this.discount = discount;
+	}
+	
+	public OrdersEntity(UserEntity user, Double total_due, Double discount, AppliedOffersOrder appliedOffers) {
+		super();
+		this.user = user;
+		this.total_due = total_due;
+		this.discount = discount;
+		this.aplAppliedOffersOrder = appliedOffers;
 	}
 	
 	public Long getId() {
@@ -65,5 +78,13 @@ public class OrdersEntity {
 
 	public void setDiscount(Double discount) {
 		this.discount = discount;
+	}
+
+	public AppliedOffersOrder getAplAppliedOffersOrder() {
+		return aplAppliedOffersOrder;
+	}
+
+	public void setAplAppliedOffersOrder(AppliedOffersOrder aplAppliedOffersOrder) {
+		this.aplAppliedOffersOrder = aplAppliedOffersOrder;
 	}
 }
