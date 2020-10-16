@@ -22,6 +22,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfig extends WebMvcConfigurationSupport {
     
+	/*
+	 * Configura o Swagger
+	 */
 	@Bean
 	public Docket productApi() {
 		return new Docket(DocumentationType.SWAGGER_2)
@@ -34,14 +37,17 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 	
 	private ApiInfo metaData() {
 		return new ApiInfoBuilder()
-			.title("Spring Boot REST API")
-			.description("Spring Boot REST API")
+			.title("Restaurant REST API")
+			.description("Teste prático Fitch")
 			.version("1.0.0")
 			.license("Apache License Version 2.0")
 			.licenseUrl("https://www.apache.org/licenses/LICENSE-2.0")
 			.build();
 	}
-
+	
+	/*
+	 * Instrui o Swagger a enviar o token JWT, quando disponível.
+	 */
 	private ApiKey apiKey() {
 	    return new ApiKey("Bearer", "Authorization", "header");
 	}

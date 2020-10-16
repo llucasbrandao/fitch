@@ -18,14 +18,11 @@ import com.fitch.teste.dto.OrdersDTO;
 import com.fitch.teste.exceptions.InvalidParameterException;
 import com.fitch.teste.services.OrdersService;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.Authorization;
 
 @RestController
 @RequestMapping("/api/v1/orders")
-@Api(value = "/api/v1/docs/orders")
-@ApiOperation(value = "", authorizations = { @Authorization(value="JWT") })
 public class OrdersController {
 	
 	@Autowired
@@ -36,6 +33,7 @@ public class OrdersController {
 	}
 	
 	@PostMapping(value = "/new",  produces=MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "Create a order", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> newOrder(@Valid @RequestBody OrdersDTO order) {
 		if (order.getIngredients() == null && (order.getSnack() == null || order.getSnack() == ""))
 			throw new InvalidParameterException("Missing order ingredients/snack");
@@ -44,6 +42,7 @@ public class OrdersController {
 	}
 	
 	@GetMapping("/getByID")
+	@ApiOperation(value = "Get order by ID", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> getByID(@RequestParam Long id) {
 		return new ResponseEntity<>(new GenericResponseDTO<>(ordersService.findOrderByID(id), HttpStatus.OK), HttpStatus.OK);
 	}

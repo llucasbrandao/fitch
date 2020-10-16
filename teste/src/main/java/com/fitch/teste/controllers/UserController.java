@@ -21,6 +21,9 @@ import com.fitch.teste.dto.UserDTO;
 import com.fitch.teste.entities.UserEntity;
 import com.fitch.teste.services.UserService;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Authorization;
+
 @RestController
 @RequestMapping("/api/v1/users")
 class UserController {
@@ -37,22 +40,26 @@ class UserController {
 	}
 	
 	@PostMapping("/new")
+	@ApiOperation(value = "Create a new user", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> newUser(@Valid @RequestBody UserDTO payload) {
 		return new ResponseEntity<>(new GenericResponseDTO<String>("User created successfully. ID: " + userService.saveUser(UserService.fromDTO(payload)), 
 				HttpStatus.CREATED), HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/getByID")
+	@ApiOperation(value = "Get user by ID", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<Optional<UserEntity>> getByID(@RequestParam("id") Long id) {
 		return new ResponseEntity<>(userService.findUserByID(id), HttpStatus.OK);
 	}
 	
 	@GetMapping("/getByEmail")
+	@ApiOperation(value = "Get user by email", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<UserEntity> getByEmail(@RequestParam("email") String email) {
 		return new ResponseEntity<>(userService.findUserByEmail(email), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/delete/{id}")
+	@ApiOperation(value = "Remove an user", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> deleteUser(@PathVariable("id") Long id) {
 		
 		return new ResponseEntity<>(new GenericResponseDTO<String>(Boolean.toString(userService.delete(id)), HttpStatus.OK), HttpStatus.OK);

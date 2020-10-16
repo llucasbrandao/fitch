@@ -39,19 +39,21 @@ public class IngredientsController {
 	
 	@PostMapping("/new")
 	@PreAuthorize("hasRole('ADMIN')")
+	@ApiOperation(value = "Create a new ingredient", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> newIngredient(@Valid @RequestBody IngredientsDTO ingredientsDTO) {
 		return new ResponseEntity<>(new GenericResponseDTO<String>("Ingredient added successfully. ID: " + ingredientsService.newIngredient(IngredientsService.fromDTO(ingredientsDTO)), 
 				HttpStatus.CREATED), HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/getAll")
-	@ApiOperation(value = "Greets the world or Niteroi", authorizations = @Authorization(value = "Bearer"))
+	@ApiOperation(value = "Lists all available ingredients", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> getAll() {
 		return new ResponseEntity<>(new GenericResponseDTO<List<IngredientsEntity>>(ingredientsService.findAll(), 
 				HttpStatus.OK), HttpStatus.OK);
 	}
 	
 	@GetMapping("/getByID")
+	@ApiOperation(value = "Get ingredient by ID", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> getByID(@RequestParam Long id) {
 		if (id == null)
 			throw new InvalidParameterException("Parameter 'id' is required");
@@ -62,6 +64,7 @@ public class IngredientsController {
 	
 	@PatchMapping("/edit/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
+	@ApiOperation(value = "Edit an ingredients", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> editIngredient(@PathVariable Long id, @RequestParam Double price) {
 		if (price == null)
 			throw new InvalidParameterException("Parameter 'price' is required");
@@ -74,6 +77,7 @@ public class IngredientsController {
 	
 	@PatchMapping("/delete/{id}")
 	@PreAuthorize("hasRole('ADMIN')")
+	@ApiOperation(value = "Delete an ingredient", authorizations = @Authorization(value = "Bearer"))
 	public ResponseEntity<GenericResponseDTO<?>> deleteIngredient(@PathVariable Long id) {
 		if (id == null)
 			throw new InvalidParameterException("Parameter 'id' is required");
