@@ -44,15 +44,18 @@ public class OrdersService {
 		OrdersEntity ordersEntity = fromDTO(ordersDTO);
 		Long id = ordersRepository.save(ordersEntity).getId();
 		
-		//System.out.println(ordersEntity.getOrder_ingredients());
-		
+		/*
+		 * Extrai o id do Map, que refere-se aos ingredientes constantes no pedido,
+		 * e adiciona-os a um Set, verificando para que não haja valores repetidos.
+		 */
 		for (Map<String, Object> map : ordersDTO.getIngredients())
 			for (Map.Entry<String, Object> entry : map.entrySet())
-				if (entry.getKey().equals("id"))
-					ingredIntegers.add(Integer.parseInt(entry.getValue().toString()));
+				if (entry.getKey().equals("id")) 
+					if (!ingredIntegers.contains(Integer.parseInt(entry.getValue().toString())))
+						ingredIntegers.add(Integer.parseInt(entry.getValue().toString()));
 				
 		for (Integer i : ingredIntegers) {
-			for (int j = 0; j < ordersDTO.getIngredients().size(); j++) {
+			for (int j = 0; j < ingredIntegers.size(); j++) {
 				if (Integer.parseInt(ordersDTO.getIngredients().get(j).get("id").toString()) == i) {
 					orderIngredientsRepository.save(
 							new OrderIngredientsEntity(ingredientsService.findByID(Integer.toUnsignedLong(i)).get(), ordersEntity, 
