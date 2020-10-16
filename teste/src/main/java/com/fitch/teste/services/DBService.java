@@ -4,40 +4,42 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.SessionFactoryBuilder;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.fitch.teste.entities.IngredientsEntity;
 import com.fitch.teste.entities.UserEntity;
 import com.fitch.teste.enums.UserRoleEnum;
+import com.fitch.teste.repositories.IngredientsRepository;
 import com.fitch.teste.repositories.UserRepository;
 
 @Component
 public class DBService {
 	
-	private static SessionFactory sessionFactory;
-	
+	/*
+	 * Estamos injetando os repositórios diretamente para evitarmos as validações executadas pelos respectivos Services,
+	 * uma vez que nosso objetivo é apenas criar dados de teste.
+	 */
 	@Autowired
 	private UserRepository userRepository;
+	
+	@Autowired
+	private IngredientsRepository ingredientsRepository;
 	
 	@Autowired
 	private BCryptPasswordEncoder pe;
 	
 	/**
-	 * Usamos este método para criarmos dados de testes
+	 * Usamos este método para criarmos dados iniciais de testes.
 	 */
 	
 	@EventListener(ApplicationReadyEvent.class) // Roda o método assim que o Spring inicializar
 	public void fakeData() {
 		int userInserted = 0;
+		int ingredientsInserted = 0;
 		
 		System.out.println("\n\tInserindo dados de testes...");
 		
@@ -45,8 +47,8 @@ public class DBService {
 		
 		userRoles.add(UserRoleEnum.ROLE_ADMIN.getCode());
 		
-		if (userRepository.findByEmail("llucasbrandao@admin.com") == null) {
-			UserEntity userEntity = new UserEntity("Lucas", "Brandão", "llucasbrandao@admin.com", pe.encode("123456"), new Date(), userRoles);
+		if (userRepository.findByEmail("admin@admin.com") == null) {
+			UserEntity userEntity = new UserEntity("Usuário", "Admin", "admin@admin.com", pe.encode("123456"), new Date(), userRoles);
 			
 			userRepository.save(userEntity);
 			
@@ -56,12 +58,12 @@ public class DBService {
 			
 		} 
 		
-		if (userRepository.findByEmail("llucasbrandao@user.com") == null) {
+		if (userRepository.findByEmail("user@user.com") == null) {
 			userRoles.clear();
 			
 			userRoles.add(UserRoleEnum.ROLE_USER.getCode());
 			
-			UserEntity userEntity = new UserEntity("Lucas", "Brandão", "llucasbrandao@user.com", pe.encode("123456"), new Date(), userRoles);
+			UserEntity userEntity = new UserEntity("Usuário", "User", "user@user.com", pe.encode("123456"), new Date(), userRoles);
 			
 			userRepository.save(userEntity);
 			
@@ -72,32 +74,61 @@ public class DBService {
 		}
 		
 		if (userInserted == 0)
-			System.out.println("\n\tDados de testes já existem...\n");
+			System.out.println("\n\tUsuários de testes já existem...\n");
+		
+		/*
+		 * Cria snacks e insere ingredientes no banco
+		 */
+		
+		IngredientsEntity ingredientsEntity;
+		
+		// Alface
+		if (ingredientsRepository.findByName("Alface") == null) {
+			ingredientsEntity = new IngredientsEntity("Alface", Integer.toUnsignedLong(1000), 0.40);
+			
+			ingredientsRepository.save(ingredientsEntity);
+			
+			ingredientsInserted = 1;
+		}
+		
+		// Bacon
+		if (ingredientsRepository.findByName("Bacon") == null) {
+			ingredientsEntity = new IngredientsEntity("Bacon", Integer.toUnsignedLong(1000), 2.00);
+			
+			ingredientsRepository.save(ingredientsEntity);
+			
+			ingredientsInserted = 1;
+		}
+		
+		// Hambúrguer
+		if (ingredientsRepository.findByName("Hambúrguer") == null) {
+			ingredientsEntity = new IngredientsEntity("Hambúrguer", Integer.toUnsignedLong(1000), 3.00);
+			
+			ingredientsRepository.save(ingredientsEntity);
+		}
+		
+		// Ovo
+		if (ingredientsRepository.findByName("Ovo") == null) {
+			ingredientsEntity = new IngredientsEntity("Ovo", Integer.toUnsignedLong(1000), 0.80);
+			
+			ingredientsRepository.save(ingredientsEntity);
+			
+			ingredientsInserted = 1;
+		}
+		
+		// Queijo
+		if (ingredientsRepository.findByName("Queijo") == null) {
+			ingredientsEntity = new IngredientsEntity("Queijo", Integer.toUnsignedLong(1000), 1.50);
+			
+			ingredientsRepository.save(ingredientsEntity);
+			
+			ingredientsInserted = 1;
+		}
+		
+		if (ingredientsInserted == 1)
+			System.out.println("\tIngredientes criados com sucesso...\n");
+		
+		else System.out.println("\tIngredientes já existem...\n");
 	}
-
-	/*
-	 * Os dois métodos abaixo são usados para criarmos uma Sessão do Hibernate e a usarmos com o Criteria, para buscas mais flexíveis.
-	 */
-    private static SessionFactory buildSessionFactory() {
-        StandardServiceRegistry standardRegistry = new StandardServiceRegistryBuilder().
-                configure("hibernate.cfg.xml").build();
-
-        Metadata metadata = new MetadataSources(standardRegistry).getMetadataBuilder().
-                build();
-
-        SessionFactoryBuilder sessionFactoryBuilder = metadata.getSessionFactoryBuilder();
-
-        SessionFactory sessionFactory = sessionFactoryBuilder.build();
-
-        return sessionFactory;
-    }
-
-    public static SessionFactory getSessionFactory() {
-        if (sessionFactory == null) {
-            sessionFactory = buildSessionFactory();
-        }
-        
-        return sessionFactory;
-    }
 	
 }

@@ -31,8 +31,8 @@ public class OrdersController {
 	
 	@PostMapping(value = "/new",  produces=MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<GenericResponseDTO<?>> newOrder(@Valid @RequestBody OrdersDTO order) {
-		if (order.getIngredients() == null)
-			throw new InvalidParameterException("Missing order ingredients");
+		if (order.getIngredients() == null && (order.getSnack() == null || order.getSnack() == ""))
+			throw new InvalidParameterException("Missing order ingredients/snack");
 		
 		return new ResponseEntity<>(new GenericResponseDTO<>(ordersService.newOrder(order), HttpStatus.OK), HttpStatus.OK);
 	}

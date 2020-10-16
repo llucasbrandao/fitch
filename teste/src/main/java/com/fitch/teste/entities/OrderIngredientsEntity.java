@@ -28,6 +28,10 @@ public class OrderIngredientsEntity {
 	@JoinColumn(name = "ingredient_id")
 	private IngredientsEntity ingredient;
 	
+	private String snack;
+	
+	private Integer snack_qnt;
+	
 	private Long quantity;
 	
 	public OrderIngredientsEntity() {
@@ -40,23 +44,46 @@ public class OrderIngredientsEntity {
 		this.quantity = quantity;
 	}
 	
+	public OrderIngredientsEntity(String snack, Integer snack_qnt, OrdersEntity order, Long quantity) {
+		this.snack = snack;
+		this.snack_qnt = snack_qnt;
+		this.order = order;
+		this.quantity = quantity;
+	}
+	
 	public Long getId() {
 		return id;
 	}
 
-	public OrdersEntity getOrder_id() {
+	public OrdersEntity getOrder() {
 		return order;
 	}
 
-	public void setOrder_id(OrdersEntity order) {
+	public void setOrder(OrdersEntity order) {
 		this.order = order;
 	}
 
-	public IngredientsEntity getIngredient_id() {
+	public String getSnack() {
+		return snack;
+	}
+
+	public void setSnack(String snack) {
+		this.snack = snack;
+	}
+
+	public Integer getSnack_qnt() {
+		return snack_qnt;
+	}
+
+	public void setSnack_qnt(Integer snack_qnt) {
+		this.snack_qnt = snack_qnt;
+	}
+
+	public IngredientsEntity getIngredient() {
 		return ingredient;
 	}
 
-	public void setIngredient_id(IngredientsEntity ingredient_id) {
+	public void setIngredient(IngredientsEntity ingredient_id) {
 		this.ingredient = ingredient_id;
 	}
 

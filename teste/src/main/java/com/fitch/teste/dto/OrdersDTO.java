@@ -12,17 +12,25 @@ public class OrdersDTO implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	@NotEmpty
 	@JsonProperty("ingredients")
 	private List<Map<String, Object>> ingredients;
+	
+	// Lanche pronto
+	@JsonProperty("snack")
+	private String snack;
+
+	@JsonProperty("snack_qnt")
+	private Integer snack_qnt;
 	
 	public OrdersDTO() {
 		super();
 	}
 	
-	public OrdersDTO(@NotEmpty List<Map<String, Object>> ingredients) {
+	public OrdersDTO(List<Map<String, Object>> ingredients, String snack, Integer snack_qnt) {
 		super();
 		this.ingredients = ingredients;
+		this.snack = snack;
+		this.snack_qnt = snack_qnt;
 	}
 
 	public List<Map<String, Object>> getIngredients() {
@@ -32,11 +40,20 @@ public class OrdersDTO implements Serializable {
 	public void setIngredients(List<Map<String, Object>> ingredients) {
 		this.ingredients = ingredients;
 	}
-	
-	/*@SuppressWarnings(value = {"unchecked"})
-	@JsonProperty("ingredients")
-	private void unpackNestedJSON(Map<String, Object> jsonMap) {
-		for (Map.Entry<String, Object> entry : jsonMap.entrySet())
-			System.out.println(entry.getKey() + " => " + entry.getValue());
-	}*/
+
+	public String getSnack() {
+		return snack;
+	}
+
+	public void setSnack(String snack) {
+		this.snack = snack;
+	}
+
+	public Integer getSnack_qnt() {
+		return snack_qnt;
+	}
+
+	public void setSnack_qnt(Integer snack_qnt) {
+		this.snack_qnt = snack_qnt;
+	}
 }
