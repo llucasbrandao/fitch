@@ -1,0 +1,39 @@
+version: '3.5'
+services:
+    # API backend service
+    api-server:
+        # Configuration for building the docker image for the backend service
+        build:
+            context: / # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+            #dockerfile: /
+        # If docker-compose build fails, try specifying the image below and remove the dockerfile: /
+        image: teste
+        command: bin/bash "ls"
+        ports:
+            - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+        restart: always
+        depends_on: 
+            - db # This service depends on MariaDB. Start that first.
+        env_file: 
+            - ./env/config.env
+        networks:
+            - backend
+
+    db:
+        image: mariadb:10.5.6
+        ports:
+            - "3306:3306"
+        restart: always
+        env_file: 
+            - ./env/config.env
+        volumes:
+            - db-data:/var/lib/mysql
+        networks:
+            - backend 
+volumes:
+    db-data:
+
+networks:
+    backend:
+        external: true
+        
