@@ -115,8 +115,9 @@ Logo, você também deve mandar o token JWT no header "Authorization" da requisi
 
 #### Endpoints & Login
 - **Os Endpoints da aplicação estão disponíveis no Swagger.**<br>
-- **Todos os endpoints relacionados a adição, edição e remoção de ingredientes requerem um token de administrador.**
-<br>Caso você tente executar alguma operação e receba o erro:
+- **Todos os endpoints relacionados a adição, edição e remoção de ingredientes requerem um token de administrador.**<br>
+
+Caso você tente executar alguma operação e receba o erro:
 
 ```json
     Access denied. User is either not logged or is trying to perform a not allowed action
