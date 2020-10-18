@@ -19,10 +19,9 @@ Tecnologias utilizadas:
 
 ## Como executar
 
-* Arquivo env:
-    * A primeira coisa a ser feita, é configurar o arquivo "/fitch/teste/env/config.env" com as informações do ambiente de execução (banco de dados e JWT).
-    * A pasta /teste/env/ tem o arquivo "config.env.example. Basta renomeá-lo para config.env e preencher seus campos.
-    * Criar a rede que ligará a API ao banco de dados: `docker network create backend`.
+* A primeira coisa a ser feita, é configurar o arquivo ```"/fitch/teste/env/config.env" ``` com as informações do ambiente de execução (banco de dados e JWT).
+* A pasta /teste/env/ tem o arquivo "config.env.example. Basta renomeá-lo para config.env e preencher seus campos.
+* Criar a rede que ligará a API ao banco de dados: `docker network create backend`.
 
 Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
 
@@ -32,10 +31,10 @@ Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. P
 
 ### Se o docker-compose não estiver disponível, você deve:
 
-1. Acesar a pasta /teste e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório /fitch/teste);
-1. Iniciar um container com a imagem criada acima: `docker run -d --name api-restaurant --env_file=/env/config.env -p 8000:8000 api-restaurant-image` (ainda dentro da pasta /teste).
+1. Acessar a pasta `/fitch/teste` e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `/fitch/teste/`);
+1. Iniciar um container com a imagem criada acima: `docker run -d --name api-restaurant --env_file=/env/config.env -p 8000:8000 api-restaurant-image` (ainda dentro da pasta `/fitch/teste/`);
 1. Criar um container do MariaDB, usando as configs do arquivo env: `docker run -d --name db --env_file=/env/config.env mariadb:10.5.6`;
-1. Atualizar o arquivo 
+1. Atualizar o arquivo `"/fitch/teste/env/config.env"` com os dados do banco de dados criado;
 
 ### Importante!
 - **Lembre-se de criar a rede "backend": `docker network create backend`.**<br>
@@ -44,7 +43,7 @@ Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. P
 
 ## IDE's
 
-Se quiser executar o sistema a partir de alguma IDE, certifique-se de que as informações do arquivo "/fitch/teste/env/config.env" estão corretas.<br>
+Se quiser executar o sistema a partir de alguma IDE, certifique-se de que as informações do arquivo `"/fitch/teste/env/config.env"` estão corretas.<br>
 Feito isso, é só usar a IDE de sua preferência e **um banco de dados MariaDB/MySQL.**
 
 ## Fake Data
@@ -80,11 +79,13 @@ Além disso, são gerados lanches e ingredientes:
         ● X-Egg Bacon: Ovo, bacon, hambúrguer de carne e queijo
 ```
 
-**Se você não quiser os dados falsos, comente o conteúdo da classe DBService.java:
+**Se você não quiser os dados falsos, comente o conteúdo da classe DBService.java:**
 
 ```bash
     /teste/src/main/java/com/fitch/teste/services/DBService.java
 ```
+
+**e remova os registros falsos do banco, na tabela users.**
 
 ## Swagger, Postman & Endpoints
 O Swagger pode ser acessado em [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html).
