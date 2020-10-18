@@ -3,11 +3,11 @@ services:
     # API backend service
     api-server:
         # Configuration for building the docker image for the backend service
-        build:
-            context: / # Use an image built from the specified dockerfile in the `polling-app-server` directory.
-            dockerfile: /
+        #build:
+            #context: / # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+            #dockerfile: /
         # If docker-compose build fails, try specifying the image below and remove the dockerfile: /
-        #image: api-restaurant-image
+        image: llucasbrandao/images:api-restaurant-image
         ports:
             - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
         restart: always
@@ -34,5 +34,5 @@ volumes:
 
 networks:
     backend:
-        external: true # External Network! Remember to manually create it first!
+        #external: true # External Network! Remember to manually create it first!
         
