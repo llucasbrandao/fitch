@@ -17,7 +17,7 @@ Tecnologias utilizadas:
 
 ## Como executar
 
-* A primeira coisa a ser feita, é configurar o arquivo ```"/fitch/teste/env/config.env" ``` com as informações do ambiente de execução (banco de dados e JWT).
+* A primeira coisa a ser feita, é configurar o arquivo ```"/fitch/env/config.env" ``` com as informações do ambiente de execução (banco de dados e JWT).
 * A pasta /teste/env/ tem o arquivo `"config.env.example"`. Basta renomeá-lo para `config.env` e preencher seus campos.
 * Criar a rede que ligará a API ao banco de dados: `docker network create backend`.
 
@@ -29,10 +29,10 @@ Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. P
 
 ### Se o docker-compose não estiver disponível, você deve:
 
-1. Acessar a pasta `"/fitch/teste/"` e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `"/fitch/teste/"`);
-1. Iniciar um container com a imagem criada acima: `docker run -d --name api-restaurant --env_file=/env/config.env -p 8000:8000 api-restaurant-image` (ainda dentro da pasta `/fitch/teste/`);
+1. Acessar a pasta raiz do projeto (`"/fitch/"`) e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `"/fitch/"`);
+1. Iniciar um container com a imagem criada acima: `docker run -d --name api-restaurant --env_file=/env/config.env -p 8000:8000 api-restaurant-image` (ainda dentro da pasta raiz `/fitch/`);
 1. Criar um container do MariaDB, usando as configs do arquivo env: `docker run -d --name db --env_file=/env/config.env mariadb:10.5.6`;
-1. Atualizar o arquivo `"/fitch/teste/env/config.env"` com os dados do banco de dados criado;
+1. Atualizar o arquivo `"/fitch/env/config.env"` com os dados do banco de dados criado;
 
 ### Importante!
 - **Lembre-se de criar a rede "backend": `docker network create backend`.**<br>
@@ -41,7 +41,7 @@ Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. P
 
 ## IDE's
 
-Se quiser executar o sistema a partir de alguma IDE, certifique-se de que as informações do arquivo `"/fitch/teste/env/config.env"` estão corretas.<br>
+Se quiser executar o sistema a partir de alguma IDE, certifique-se de que as informações do arquivo `"/fitch/env/config.env"` estão corretas.<br>
 Feito isso, é só usar a IDE de sua preferência e **um banco de dados MariaDB/MySQL.**
 
 ## Fake Data
@@ -80,12 +80,12 @@ Além disso, são gerados lanches e ingredientes:
 **Se você não quiser os dados falsos, comente o conteúdo da classe DBService.java:**
 
 ```bash
-    /teste/src/main/java/com/fitch/teste/services/DBService.java
+    /fitch/src/main/java/com/lucasbrandao/restaurantapi/services/DBService.java
 ```
 
 **e remova os registros falsos do banco, na tabela users.**
 
-## Swagger, Postman & Endpoints
+## Swagger, Postman, Login & Endpoints
 O Swagger pode ser acessado em [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html).
 
 Você precisa ter um token de usuário ou administrador para buscar/inserir informações nos endpoints.
@@ -113,4 +113,21 @@ Logo, você também deve mandar o token JWT no header "Authorization" da requisi
     Bearer: token
 ```
 
-**Os Endpoints da aplicação estão disponíveis no Swagger.**
+#### Endpoints & Login
+- **Os Endpoints da aplicação estão disponíveis no Swagger.**<br>
+- **Todos os endpoints relacionados a adição, edição e remoção de ingredientes requerem um token de administrador.**
+<br>Caso você tente executar alguma operação e receba o erro:
+
+```json
+    Access denied. User is either not logged or is trying to perform a not allowed action
+```
+
+significa que o JWT enviado é de um usuário comum, e não de administrador.
+
+<br>Ao tentar acessar qualquer endpoint **(exceto o Swagger-UI)** sem enviar o JWT no header da requisição, você receberá o erro:
+
+```json
+    Full authentication is required to access this resource
+```
+
+**Este erro também ocorrerá se, ao tentar fazer login, o usuário ou senha estiverem incorretos.**
