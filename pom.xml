@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.lucasbrandao</groupId>
-	<artifactId>teste</artifactId>
+	<artifactId>restaurant-rest-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>teste</name>
+	<name>Restaurant Rest API</name>
 	<description>Restaurant REST API</description>
 
 	<properties>
