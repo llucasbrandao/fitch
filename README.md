@@ -1,6 +1,4 @@
-# Teste Prático API de Pedidos
-
-Teste prático consistindo em uma API de pedidos.
+# API de Pedidos
 
 O cliente pode escolher entre lanches já montados, ou informar quais ingredientes deseja.
 
@@ -20,7 +18,7 @@ Tecnologias utilizadas:
 ## Como executar
 
 * A primeira coisa a ser feita, é configurar o arquivo ```"/fitch/teste/env/config.env" ``` com as informações do ambiente de execução (banco de dados e JWT).
-* A pasta /teste/env/ tem o arquivo "config.env.example. Basta renomeá-lo para config.env e preencher seus campos.
+* A pasta /teste/env/ tem o arquivo `"config.env.example"`. Basta renomeá-lo para `config.env` e preencher seus campos.
 * Criar a rede que ligará a API ao banco de dados: `docker network create backend`.
 
 Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
@@ -31,7 +29,7 @@ Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. P
 
 ### Se o docker-compose não estiver disponível, você deve:
 
-1. Acessar a pasta `/fitch/teste` e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `/fitch/teste/`);
+1. Acessar a pasta `"/fitch/teste/"` e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `"/fitch/teste/"`);
 1. Iniciar um container com a imagem criada acima: `docker run -d --name api-restaurant --env_file=/env/config.env -p 8000:8000 api-restaurant-image` (ainda dentro da pasta `/fitch/teste/`);
 1. Criar um container do MariaDB, usando as configs do arquivo env: `docker run -d --name db --env_file=/env/config.env mariadb:10.5.6`;
 1. Atualizar o arquivo `"/fitch/teste/env/config.env"` com os dados do banco de dados criado;
