@@ -42,7 +42,7 @@ Depois, basta acessar a pasta `"/fitch/"` e rodar o comando `docker-compose up -
 
 ## IDE's
 
-Se quiser executar o sistema a partir de alguma IDE, certifique-se de que as informações do arquivo `"/fitch/env/config.env"` estão corretas.<br>
+Se quiser executar o sistema a partir de alguma IDE, certifique-se de configurar as informações do arquivo `"/fitch/src/main/resources/application.properties"` manualmente.<br>
 Feito isso, é só usar a IDE de sua preferência e **um banco de dados MariaDB/MySQL.**
 
 ## Fake Data
