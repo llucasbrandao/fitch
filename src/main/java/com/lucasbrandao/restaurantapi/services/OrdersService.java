@@ -56,8 +56,8 @@ public class OrdersService {
 		Long finalOrderID = Integer.toUnsignedLong(0);
 
 		/*
-		 * Extrai o id do Map, que refere-se aos ingredientes constantes no pedido,
-		 * e adiciona-os a um Set, verificando para que não haja valores repetidos.
+		 * Verifica se o pedido é de um lanche pronto.
+		 * Não sendo, processa os ingredientes.
 		 */
 		if (ordersDTO.getSnack() != null && ordersDTO.getSnack() != "") {
 			boolean foundSnack = false;
@@ -94,8 +94,12 @@ public class OrdersService {
 			 */
 			for (Map<String, Object> map : ordersDTO.getIngredients()) {
 				for (Map.Entry<String, Object> entry : map.entrySet()) {
+					// Pega o ingrediente a partir do campo id
 					if (entry.getKey().equals("id"))
 						try {
+							/*
+							 * Verifica para que não haja valores repetidos.
+							 */
 							if (!ingredIntegers.contains(Integer.parseInt(entry.getValue().toString())))
 								ingredIntegers.add(Integer.parseInt(entry.getValue().toString()));
 							
@@ -105,7 +109,8 @@ public class OrdersService {
 						}
 				}
 			}
-
+			
+			// O usuário não informou nenhum ID, ou o(s) id(s) são inválido(s).
 			if (ingredIntegers.size() == 0)
 				throw new InvalidParameterException("No ingredient ID was found. "
 						+ "Please double check your order and be sure to inform at least one valid ingredient ID.");
