@@ -21,7 +21,7 @@ Tecnologias utilizadas:
 * A pasta `"/fitch/env/"` tem o arquivo `"config.env.example"`. Basta renomeá-lo para `config.env` e preencher seus campos.
 * Criar a rede que ligará a API ao banco de dados: `docker network create backend`.
 
-Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
+Depois, basta acessar a pasta `"/fitch/"` e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
 
 **Caso a configuração automática do docker-compose falhe, execute as instruções abaixo, como se você não tivesse o docker-compose instalado na máquina.**
 **<br>São muitas dependências e o docker precisar baixar todas, podendo ocorrer algum timeout no processo. <br>Se isso acontecer, você ainda pode dar build manual na imagem, e ativar o parâmetro "image" no arquivo docker-compose.yml (é importante remover o parâmetro "context", se você fizer isso).**
@@ -38,6 +38,7 @@ Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. P
 - **Lembre-se de criar a rede "backend": `docker network create backend`.**<br>
 - **Pode ser que as configurações de rede da máquina não liberem acesso pelo localhost. Assim, é necessário que você inspecione o container e tente acessar pelo IP dele.**<br>
 - **A porta de execução padrão é a 8080.**
+- **O arquivo "/fitch/env/config.env" está incluído no .gitignore, por questões de segurança. Somente o "config.env.example" deve ser "commitado".**
 
 ## IDE's
 
@@ -77,13 +78,13 @@ Além disso, são gerados lanches e ingredientes:
         ● X-Egg Bacon: Ovo, bacon, hambúrguer de carne e queijo
 ```
 
-**Se você não quiser os dados falsos, comente o conteúdo da classe DBService.java:**
+**Se você não quiser os dados falsos, comente ou remova o conteúdo do arquivo "DBService.java":**
 
 ```bash
     /fitch/src/main/java/com/lucasbrandao/restaurantapi/services/DBService.java
 ```
 
-**e remova os registros falsos do banco, na tabela users.**
+**e remova os registros falsos do banco, nas tabelas users e ingredients.**
 
 ## Swagger, Postman, Login & Endpoints
 O Swagger pode ser acessado em [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html).
