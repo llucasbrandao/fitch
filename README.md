@@ -18,7 +18,7 @@ Tecnologias utilizadas:
 ## Como executar
 
 * A primeira coisa a ser feita, é configurar o arquivo ```"/fitch/env/config.env" ``` com as informações do ambiente de execução (banco de dados e JWT).
-* A pasta /teste/env/ tem o arquivo `"config.env.example"`. Basta renomeá-lo para `config.env` e preencher seus campos.
+* A pasta `"/fitch/env/"` tem o arquivo `"config.env.example"`. Basta renomeá-lo para `config.env` e preencher seus campos.
 * Criar a rede que ligará a API ao banco de dados: `docker network create backend`.
 
 Depois, basta acessar a pasta /teste e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
