@@ -29,7 +29,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 	public Docket productApi() {
 		return new Docket(DocumentationType.SWAGGER_2)
 		.select()
-		.apis(RequestHandlerSelectors.basePackage("com.fitch.teste"))
+		.apis(RequestHandlerSelectors.basePackage("com.lucasbrandao.restaurantapi"))
 		.build()
 		.apiInfo(metaData())
 		.securitySchemes(Arrays.asList(apiKey()));
