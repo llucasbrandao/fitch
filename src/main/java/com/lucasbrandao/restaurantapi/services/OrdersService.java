@@ -79,8 +79,7 @@ public class OrdersService {
 			/*
 			 * Salvamos o pedido e o snack.
 			 */
-			
-			ordersRepository.save(ordersEntity);
+			finalOrderID = ordersRepository.save(ordersEntity).getId();
 			
 			orderIngredientsRepository.save(
 					new OrderIngredientsEntity(
