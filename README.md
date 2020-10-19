@@ -17,28 +17,29 @@ Tecnologias utilizadas:
 
 ## Como executar
 
-* A primeira coisa a ser feita, é configurar o arquivo ```"/fitch/env/config.env" ``` com as informações do ambiente de execução (banco de dados e JWT).
-* A pasta `"/fitch/env/"` tem o arquivo `"config.env.example"`. Basta renomeá-lo para `config.env` e preencher seus campos.
-* Criar a rede que ligará a API ao banco de dados: `docker network create backend`.
-
-Depois, basta acessar a pasta `"/fitch/"` e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
+Bbasta acessar a pasta `"/fitch/"` e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
 
 **Caso a configuração automática do docker-compose falhe, execute as instruções abaixo, como se você não tivesse o docker-compose instalado na máquina.**
-**<br>São muitas dependências e o docker precisar baixar todas, podendo ocorrer algum timeout no processo. <br>Se isso acontecer, você ainda pode dar build manual na imagem, e ativar o parâmetro "image" no arquivo docker-compose.yml (é importante remover o parâmetro "context", se você fizer isso).**
-**<br>Por fim, é só rodar o comando `docker-compose up -d` novamente.** 
 
-### Se o docker-compose não estiver disponível, você deve:
+### Se o docker-compose não estiver disponível, você deve:<br>
 
+#### **\*ATENÇÃO: O PRIMEIRO PASSO DEVE SER EXECUTADO APENAS SE VOCÊ QUISER FAZER NOVO BUILD DA IMAGEM. <br>SENÃO, PULE PARA O SEGUNDO (2º) PASSO.<br><br>**
 1. Acessar a pasta raiz do projeto (`"/fitch/"`) e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `"/fitch/"`);
-1. Iniciar um container com a imagem criada acima: `docker run -d --name api-restaurant --env_file=/env/config.env -p 8000:8000 api-restaurant-image` (ainda dentro da pasta raiz `/fitch/`);
-1. Criar um container do MariaDB, usando as configs do arquivo env: `docker run -d --name db --env_file=/env/config.env mariadb:10.5.6`;
-1. Atualizar o arquivo `"/fitch/env/config.env"` com os dados do banco de dados criado;
+1. Iniciar um container com a imagem criada acima, ou com a padrão `llucasbrandao/images:api-restaurant-image`, **ainda dentro da pasta raiz** `/fitch/`: 
+```bash
+    docker run -d --name api-restaurant --env-file ./env/config.env -p 8000:8000 llucasbrandao/images:api-restaurant-image
+``` 
+
+3. Criar um container do MariaDB, usando as configs do arquivo env: `docker run -d --name db --env-file ./env/config.env mariadb:10.5.6`;
+4. Atualizar o arquivo `"/fitch/env/config.env"` com os dados do banco de dados criado (novo nome ou IP do banco, por exemplo);
+5. Certificar-se de que ambos o DB e a API estão na mesma rede;
 
 ### Importante!
-- **Lembre-se de criar a rede "backend": `docker network create backend`.**<br>
+- **Lembre-se de criar a rede "backend", ou com o nome de sua escolha: `docker network create backend`, no caso de execução sem o Docker-Compose.**<br>
 - **Pode ser que as configurações de rede da máquina não liberem acesso pelo localhost. Assim, é necessário que você inspecione o container e tente acessar pelo IP dele.**<br>
 - **A porta de execução padrão é a 8080.**
 - **O arquivo "/fitch/env/config.env" está incluído no .gitignore, por questões de segurança. Somente o "config.env.example" deve ser "commitado".**
+- **No arquivo config.env, o padrão deve ser CHAVE=VALOR, sem espaços ou aspas.**
 
 ## IDE's
 
@@ -105,7 +106,7 @@ O body deve ter o seguinte formato:
 
 Este processo pode ser feito pelo [Postman](https://postman.com).
 
-Depois, é só clicar no botão "Authorize" no Swagger, e inserir o token no campo disponibilizado.
+Depois, é só clicar no botão "Authorize" no Swagger, e inserir o token no campo disponibilizado (lembre-se de adicionar "Bearer" antes do JWT).
 
 Todas as requisições para os endpoints mostrados no Swagger também podem ser feitas pelo Postman. <br>
 Logo, você também deve mandar o token JWT no header "Authorization" da requisição:
@@ -133,3 +134,81 @@ significa que o JWT enviado é de um usuário comum, e não de administrador.
 ```
 
 **Este erro também ocorrerá se, ao tentar fazer login, o usuário ou senha estiverem incorretos.**
+
+## Pedidos
+
+Endpoint: `/api/v1/orders/new`;<br>
+Para fazer um novo pedido, o corpo da requisição **POST** deve ser o seguinte:
+
+- Com ingredientes escolhidos:
+
+```json
+{
+    "ingredients": [ // Array de ingredientes
+        {
+            "id": 1, // ID do ingrediente desejado
+            "quantity": 2 // Quantidade
+        },
+        {
+            "id": 2, // ID do ingrediente desejado
+            "quantity": 1 // Quantidade
+        }
+    ]
+}
+```
+
+- Com lanches prontos:
+
+```json
+{
+    "snack": "string", // Nome do lanche
+    "snack_qnt": 0 // Quantidade
+}
+```
+
+**<br>Os lanches prontos estão hard-coded no arquivo `/fitch/src/main/java/com/lucasbrandao/restaurantapi/services/SnacksService.java`, método `generateDummySnacks()`.**
+
+**Se você fizer o pedido com algum lanche pronto, os ingredientes individuais serão ignorados.**
+<br>O cálculo do preço e do desconto será feito com base nos ingredientes, mesmo nos lanches prontos. O desconto, quando aplicável, é cumulativo entre os ingredientes.
+
+### Promoções
+
+**Quando uma promoção é aplicada**, o JSON devolvido terá o campo "order_offers":
+
+```json
+/api/v1/orders/getByID?id=6
+
+{
+    "message": {
+        "id": 6,
+        "user": {
+            "id": 2,
+            "role": [
+                "ROLE_USER"
+            ],
+            "firstName": "Usuário",
+            "lastName": "User",
+            "email": "user@user.com",
+            "birthday": 1603063722000
+        },
+        "total_due": 2.16,
+        "discount": 0.24,
+        "original_price": 2.4,
+        "created_at": 1603072850000,
+        "order_ingredients": [
+            {
+                "quantity": "2",
+                "ingredient_name": "Alface",
+                "price": "0.4"
+            }
+        ],
+        "order_offers": [
+            {
+                "Light": "Se tem alface e não tem bacon, 10% de desconto"
+            }
+        ]
+    },
+    "status": "OK"
+```
+
+**<br>Promoções estão hard-coded no arquivo `/fitch/src/main/java/com/lucasbrandao/restaurantapi/services/OffersService.java`, método `applyDiscount()`.**

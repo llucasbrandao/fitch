@@ -92,7 +92,7 @@ public class OffersService {
 			}
 		}
 		
-		// Define o preço total do pedido, antes de aplicar possíveis descontos.
+		// Define o preço original total do pedido, antes de aplicar possíveis descontos.
 		for (Map.Entry<String, Double> original_prices : ingredientsPrice.entrySet())
 			ordersEntity.setOriginal_total(ordersEntity.getOriginal_total() + 
 					(ingredientsPrice.get(original_prices.getKey()) * promoQnt.get(original_prices.getKey())));
@@ -103,22 +103,27 @@ public class OffersService {
 		 * OBS: Não estava explícito no PDF do teste se os descontos são, ou não, cumulativos.
 		 * Eu tratei como sendo cumulativos.
 		 */
-		if (promoQnt.get("Alface") != null && promoQnt.get("Bacon") == null)
+
+		if (promoQnt.get("Alface") != null && (promoQnt.get("Bacon") == null || promoQnt.get("Bacon") == 0)) {
+			// Como este é o primeiro caso, não temos que pegar desconto já aplicado, porque ele ainda não existe
 			// Light: Se tem alface e não tem bacon, 10% de desconto.
-			ordersEntity.setDiscount((ingredientsPrice.get("Alface") * 10) / 100);
+			
 			// Definimos o preço total original, para aplicarmos o desconto em cima dele.
 			ordersEntity.setTotal_due(promoQnt.get("Alface") * ingredientsPrice.get("Alface"));
+			ordersEntity.setDiscount((ordersEntity.getTotal_due() * 10) / 100);
 			
 			aplOffers = new AppliedOffersOrder(ordersEntity, "Light", "Se tem alface e não tem bacon, 10% de desconto");
 			
 			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
+		}
 		
 		if (promoQnt.get("Hambúrguer") != null && promoQnt.get("Hambúrguer") >= 3) {
 			/*Muita carne: A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6
 			porções, o cliente pagará 4 e assim sucessivamente.*/
 			
 			/*
-			 * O desconto final será calculado pela (quantidade do ingrediente no pedido / 3) * 2 * o preço do ingrediente.
+			 * O desconto final será calculado pela (quantidade do ingrediente no pedido / 3) * 2 * o preço do ingrediente
+			 * e somado aos descontos aplicados anteriormente em outro ingrediente, se for o caso.
 			 */
 			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Hambúrguer") / 3) * 2 * ingredientsPrice.get("Hambúrguer"));
 			// Definimos o preço total original, para aplicarmos o desconto em cima dele.
@@ -134,6 +139,11 @@ public class OffersService {
 		if (promoQnt.get("Queijo") != null && promoQnt.get("Queijo") >= 3) {
 			/*Muito queijo: A cada 3 porções de queijo o cliente só paga 2, a cada 6
 				porções, o cliente pagará 4 e assim sucessivamente.*/
+			
+			/*
+			 * O desconto final será calculado pela (quantidade do ingrediente no pedido / 3) * 2 * o preço do ingrediente
+			 * e somado aos descontos aplicados anteriormente em outro ingrediente, se for o caso.
+			 */
 			
 			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Queijo") / 3) * 2 * ingredientsPrice.get("Queijo"));
 			ordersEntity.setTotal_due(promoQnt.get("Queijo") * ingredientsPrice.get("Queijo"));

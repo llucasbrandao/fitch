@@ -16,8 +16,15 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+/*
+ * Classe que intercepta as exceções e permite customizar os retornos.
+ */
 @ControllerAdvice
 public class CustomExceptionHandler {
+	/*
+	 * @ExceptionHandler(value = {ClassName.class}): anotação que permite "pegar" o erro referente à ClassName.class.
+	 * ExceptionResponse é a classe customizada que retorna um DTO com informações.
+	 */
 	
 	@ExceptionHandler(value = {Throwable.class})
 	public final ResponseEntity<ExceptionResponse> handleGenericException(Throwable ex, WebRequest request) {
