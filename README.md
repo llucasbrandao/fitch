@@ -166,6 +166,15 @@ Para fazer um novo pedido, o corpo da requisição **POST** deve ser o seguinte:
 }
 ```
 
+Quando o pedido for de um lanche, o retorno, em caso de sucesso da operação, será:
+
+```json
+{
+    "message": "ID do pedido",
+    "status": "OK"
+}
+```
+
 **<br>Os lanches prontos estão hard-coded no arquivo `/fitch/src/main/java/com/lucasbrandao/restaurantapi/services/SnacksService.java`, método `generateDummySnacks()`.**
 
 **Se você fizer o pedido com algum lanche pronto, os ingredientes individuais serão ignorados.**
