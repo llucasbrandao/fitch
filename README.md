@@ -17,7 +17,7 @@ Tecnologias utilizadas:
 
 ## Como executar
 
-Bbasta acessar a pasta `"/fitch/"` e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
+Basta acessar a pasta `"/fitch/"` e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
 
 **Caso a configuração automática do docker-compose falhe, execute as instruções abaixo, como se você não tivesse o docker-compose instalado na máquina.**
 
