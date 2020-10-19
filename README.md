@@ -169,7 +169,8 @@ Para fazer um novo pedido, o corpo da requisição **POST** deve ser o seguinte:
 **<br>Os lanches prontos estão hard-coded no arquivo `/fitch/src/main/java/com/lucasbrandao/restaurantapi/services/SnacksService.java`, método `generateDummySnacks()`.**
 
 **Se você fizer o pedido com algum lanche pronto, os ingredientes individuais serão ignorados.**
-<br>O cálculo do preço e do desconto será feito com base nos ingredientes, mesmo nos lanches prontos. O desconto, quando aplicável, é cumulativo entre os ingredientes.
+<br>O cálculo do preço e do desconto será feito com base nos ingredientes, mesmo nos lanches prontos. **<br>O desconto, quando for o caso, poderá ser cumulativo com os descontos que já tenham sido aplicados. Essa configuração é definida no campo "IS_CUMMULATIVE_DISCOUNT=true or false"**, do arquivo `"/fitch/env/config.env"`.
+<br>O default desse parâmetro é false.
 
 ### Promoções
 

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.lucasbrandao.restaurantapi.entities.AppliedOffersOrder;
@@ -19,6 +20,9 @@ public class OffersService {
 	
 	@Autowired
 	private AppliedOfferOrderRepository appliedOfferOrderRepository;
+	
+	@Value("${IS_CUMMULATIVE_DISCOUNT}") // Define se o desconto deve ser cumulativo, ou não ## application.properties
+	private boolean IS_CUMMULATIVE_DISCOUNT;
 	
 	public boolean save(AppliedOffersOrder applOffer) {
 		if (applOffer != null && applOffer.getOrder() != null) 
@@ -48,8 +52,6 @@ public class OffersService {
 	 * Processa as promoções do pedido.
 	 */
 	public OrdersEntity applyDiscount(OrdersEntity ordersEntity, List<OrderIngredientsEntity> orderIngredientsEntity) {
-		AppliedOffersOrder aplOffers;
-		
 		// Armazena quantas vezes um ingrediente aparece no pedido.
 		Map<String, Integer> promoQnt = new HashMap<>();
 		
@@ -96,21 +98,24 @@ public class OffersService {
 		for (Map.Entry<String, Double> original_prices : ingredientsPrice.entrySet())
 			ordersEntity.setOriginal_total(ordersEntity.getOriginal_total() + 
 					(ingredientsPrice.get(original_prices.getKey()) * promoQnt.get(original_prices.getKey())));
-		
-		// Define os descontos
-		
-		/*
-		 * OBS: Não estava explícito no PDF do teste se os descontos são, ou não, cumulativos.
-		 * Eu tratei como sendo cumulativos.
-		 */
 
-		if (promoQnt.get("Alface") != null && (promoQnt.get("Bacon") == null || promoQnt.get("Bacon") == 0)) {
+		// Define os descontos
+		// Com base na config IS_CUMMULATIVE_DISCOUNT, calcula o desconto cumulativo, ou não.
+		return IS_CUMMULATIVE_DISCOUNT ? cummulativeDiscount(ordersEntity, orderIngredientsEntity, promoQnt, ingredientsPrice)
+				: nonCummulativeDiscount(ordersEntity, orderIngredientsEntity, promoQnt, ingredientsPrice);
+		
+	}
+	
+	private OrdersEntity cummulativeDiscount(OrdersEntity ordersEntity, List<OrderIngredientsEntity> orderIngredientsEntity,
+			Map<String, Integer> promoQnt, Map<String, Double> ingredientsPrice) {
+		
+		AppliedOffersOrder aplOffers;
+		
+		if (promoQnt.get("Alface") != null && promoQnt.get("Alface") > 0 && (promoQnt.get("Bacon") == null || promoQnt.get("Bacon") == 0)) {
 			// Como este é o primeiro caso, não temos que pegar desconto já aplicado, porque ele ainda não existe
 			// Light: Se tem alface e não tem bacon, 10% de desconto.
 			
-			// Definimos o preço total original, para aplicarmos o desconto em cima dele.
-			ordersEntity.setTotal_due(promoQnt.get("Alface") * ingredientsPrice.get("Alface"));
-			ordersEntity.setDiscount((ordersEntity.getTotal_due() * 10) / 100);
+			ordersEntity.setDiscount((ordersEntity.getOriginal_total() * 10) / 100);
 			
 			aplOffers = new AppliedOffersOrder(ordersEntity, "Light", "Se tem alface e não tem bacon, 10% de desconto");
 			
@@ -122,14 +127,12 @@ public class OffersService {
 			porções, o cliente pagará 4 e assim sucessivamente.*/
 			
 			/*
-			 * O desconto final será calculado pela (quantidade do ingrediente no pedido / 3) * 2 * o preço do ingrediente
+			 * O desconto será (quantidade do ingrediente no pedido / 3) * o preço do ingrediente
 			 * e somado aos descontos aplicados anteriormente em outro ingrediente, se for o caso.
 			 */
-			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Hambúrguer") / 3) * 2 * ingredientsPrice.get("Hambúrguer"));
-			// Definimos o preço total original, para aplicarmos o desconto em cima dele.
-			ordersEntity.setTotal_due(ordersEntity.getTotal_due() + promoQnt.get("Hambúrguer") * ingredientsPrice.get("Hambúrguer"));
+			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Hambúrguer") / 3) * ingredientsPrice.get("Hambúrguer"));
 			
-			aplOffers = new AppliedOffersOrder(ordersEntity, "Muita Carne", "A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6\n"
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Muita Carne", "A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6"
 					+ "	porções, o cliente pagará 4 e assim sucessivamente.");
 			
 			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
@@ -141,18 +144,70 @@ public class OffersService {
 				porções, o cliente pagará 4 e assim sucessivamente.*/
 			
 			/*
-			 * O desconto final será calculado pela (quantidade do ingrediente no pedido / 3) * 2 * o preço do ingrediente
-			 * e somado aos descontos aplicados anteriormente em outro ingrediente, se for o caso.
+			 * O desconto será (quantidade do ingrediente no pedido / 3) * o preço do ingrediente,
+			 * somado aos descontos aplicados anteriormente em outro ingrediente, se for o caso.
 			 */
+			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Queijo") / 3) * ingredientsPrice.get("Queijo"));
 			
-			ordersEntity.setDiscount(ordersEntity.getDiscount() + (promoQnt.get("Queijo") / 3) * 2 * ingredientsPrice.get("Queijo"));
-			ordersEntity.setTotal_due(promoQnt.get("Queijo") * ingredientsPrice.get("Queijo"));
-			
-			aplOffers = new AppliedOffersOrder(ordersEntity, "Muito Queijo", "A cada 3 porções de queijo o cliente só paga 2, a cada 6\n"
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Muito Queijo", "A cada 3 porções de queijo o cliente só paga 2, a cada 6"
 					+ " porções, o cliente pagará 4 e assim sucessivamente.");
 			
 			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
 		}
+		
+		// Aplica o desconto.
+		ordersEntity.setTotal_due(ordersEntity.getOriginal_total() - ordersEntity.getDiscount());
+		
+		return ordersEntity;
+		
+	}
+	
+	private OrdersEntity nonCummulativeDiscount(OrdersEntity ordersEntity, List<OrderIngredientsEntity> orderIngredientsEntity,
+			Map<String, Integer> promoQnt, Map<String, Double> ingredientsPrice) {
+		
+		AppliedOffersOrder aplOffers;
+		
+		if (promoQnt.get("Alface") != null && promoQnt.get("Alface") > 0 && (promoQnt.get("Bacon") == null || promoQnt.get("Bacon") == 0)) {
+			// Light: Se tem alface e não tem bacon, 10% de desconto.
+			
+			// Aplica o desconto de 10% sobre o valor total
+			ordersEntity.setDiscount((ordersEntity.getOriginal_total() * 10) / 100);
+			
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Light", "Se tem alface e não tem bacon, 10% de desconto");
+			
+			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
+			
+		} else if (promoQnt.get("Hambúrguer") != null && promoQnt.get("Hambúrguer") >= 3) {
+			/*Muita carne: A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6
+			porções, o cliente pagará 4 e assim sucessivamente.*/
+			
+			/*
+			 * O desconto será calculado pela quantidade do ingrediente no pedido / 3 * o preço do ingrediente
+			 */
+			ordersEntity.setDiscount(promoQnt.get("Hambúrguer") / 3 * ingredientsPrice.get("Hambúrguer"));
+			
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Muita Carne", "A cada 3 porções de hambúrguer o cliente só paga 2, a cada 6"
+					+ "	porções, o cliente pagará 4 e assim sucessivamente.");
+			
+			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
+			
+		} else if (promoQnt.get("Queijo") != null && promoQnt.get("Queijo") >= 3) {
+			/*Muito queijo: A cada 3 porções de queijo o cliente só paga 2, a cada 6
+				porções, o cliente pagará 4 e assim sucessivamente.*/
+			
+			/*
+			 * O desconto final será calculado pela quantidade do ingrediente no pedido / 3 * o preço do ingrediente
+			 */
+			
+			ordersEntity.setDiscount(promoQnt.get("Queijo") / 3 * ingredientsPrice.get("Queijo"));
+			
+			aplOffers = new AppliedOffersOrder(ordersEntity, "Muito Queijo", "A cada 3 porções de queijo o cliente só paga 2, a cada 6"
+					+ " porções, o cliente pagará 4 e assim sucessivamente.");
+			
+			ordersEntity.setAplAppliedOffersOrder(appliedOfferOrderRepository.save(aplOffers));
+			
+		} else 
+			return ordersEntity; // Se chegar aqui, é porque nenhum desconto foi aplicado.
 		
 		// Aplica o desconto.
 		ordersEntity.setTotal_due(ordersEntity.getOriginal_total() - ordersEntity.getDiscount());
