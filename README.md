@@ -17,33 +17,33 @@ Tecnologias utilizadas:
 
 ## Como executar
 
-Basta acessar a pasta `"/fitch/"` e rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
+Na pasta raiz (`"/simple-restaurant-rest-api/"`), basta rodar o comando `docker-compose up -d`. Para isso, você deve ter o Docker-Compose instalado em sua máquina.
 
 **Caso a configuração automática do docker-compose falhe, execute as instruções abaixo, como se você não tivesse o docker-compose instalado na máquina.**
 
 ### Se o docker-compose não estiver disponível, você deve:<br>
 
 #### **\*ATENÇÃO: O PRIMEIRO PASSO DEVE SER EXECUTADO APENAS SE VOCÊ QUISER FAZER NOVO BUILD DA IMAGEM. <br>SENÃO, PULE PARA O SEGUNDO (2º) PASSO.<br><br>**
-1. Acessar a pasta raiz do projeto (`"/fitch/"`) e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `"/fitch/"`);
-1. Iniciar um container com a imagem criada acima, ou com a padrão `llucasbrandao/images:api-restaurant-image`, **ainda dentro da pasta raiz** `/fitch/`: 
+1. Acessar a pasta raiz do projeto (`"/simple-restaurant-rest-api/"`) e executar o comando `docker build -t api-restaurant-image . ` (o ponto final é importante! Ele diz ao docker a localização do Dockerfile - no caso, o diretório `"/simple-restaurant-rest-api/"`);
+1. Iniciar um container com a imagem criada acima, ou com a padrão `llucasbrandao/images:api-restaurant-image`, **ainda dentro da pasta raiz** `/simple-restaurant-rest-api/`: 
 ```bash
     docker run -d --name api-restaurant --env-file ./env/config.env -p 8000:8000 llucasbrandao/images:api-restaurant-image
 ``` 
 
 3. Criar um container do MariaDB, usando as configs do arquivo env: `docker run -d --name db --env-file ./env/config.env mariadb:10.5.6`;
-4. Atualizar o arquivo `"/fitch/env/config.env"` com os dados do banco de dados criado (novo nome ou IP do banco, por exemplo);
+4. Atualizar o arquivo `"/simple-restaurant-rest-api/env/config.env"` com os dados do banco de dados criado (novo nome ou IP do banco, por exemplo);
 5. Certificar-se de que ambos o DB e a API estão na mesma rede;
 
 ### Importante!
 - **Lembre-se de criar a rede "backend", ou com o nome de sua escolha: `docker network create backend`, no caso de execução sem o Docker-Compose.**<br>
 - **Pode ser que as configurações de rede da máquina não liberem acesso pelo localhost. Assim, é necessário que você inspecione o container e tente acessar pelo IP dele.**<br>
 - **A porta de execução padrão é a 8080.**
-- **O arquivo "/fitch/env/config.env" está incluído no .gitignore, por questões de segurança. Somente o "config.env.example" deve ser "commitado".**
+- **O arquivo "/simple-restaurant-rest-api/env/config.env" está incluído no .gitignore, por questões de segurança. Somente o "config.env.example" deve ser "commitado".**
 - **No arquivo config.env, o padrão deve ser CHAVE=VALOR, sem espaços ou aspas.**
 
 ## IDE's
 
-Se quiser executar o sistema a partir de alguma IDE, certifique-se de configurar as informações do arquivo `"/fitch/src/main/resources/application.properties"` manualmente.<br>
+Se quiser executar o sistema a partir de alguma IDE, certifique-se de configurar as informações do arquivo `"/simple-restaurant-rest-api/src/main/resources/application.properties"` manualmente.<br>
 Feito isso, é só usar a IDE de sua preferência e **um banco de dados MariaDB/MySQL.**
 
 ## Fake Data
@@ -82,7 +82,7 @@ Além disso, são gerados lanches e ingredientes:
 **Se você não quiser os dados falsos, comente ou remova o conteúdo do arquivo "DBService.java":**
 
 ```bash
-    /fitch/src/main/java/com/lucasbrandao/restaurantapi/services/DBService.java
+    /simple-restaurant-rest-api/src/main/java/com/lucasbrandao/restaurantapi/services/DBService.java
 ```
 
 **e remova os registros falsos do banco, nas tabelas users e ingredients.**
@@ -175,10 +175,10 @@ Quando o pedido for de um lanche, o retorno, em caso de sucesso da operação, s
 }
 ```
 
-**<br>Os lanches prontos estão hard-coded no arquivo `/fitch/src/main/java/com/lucasbrandao/restaurantapi/services/SnacksService.java`, método `generateDummySnacks()`.**
+**<br>Os lanches prontos estão hard-coded no arquivo `/simple-restaurant-rest-api/src/main/java/com/lucasbrandao/restaurantapi/services/SnacksService.java`, método `generateDummySnacks()`.**
 
 **Se você fizer o pedido com algum lanche pronto, os ingredientes individuais serão ignorados.**
-<br>O cálculo do preço e do desconto será feito com base nos ingredientes, mesmo nos lanches prontos. **<br>O desconto, quando for o caso, poderá ser cumulativo com os descontos que já tenham sido aplicados. Essa configuração é definida no campo "IS_CUMMULATIVE_DISCOUNT=true or false"**, do arquivo `"/fitch/env/config.env"`.
+<br>O cálculo do preço e do desconto será feito com base nos ingredientes, mesmo nos lanches prontos. **<br>O desconto, quando for o caso, poderá ser cumulativo com os descontos que já tenham sido aplicados. Essa configuração é definida no campo "IS_CUMMULATIVE_DISCOUNT=true or false"**, do arquivo `"/simple-restaurant-rest-api/env/config.env"`.
 <br>O default desse parâmetro é false.
 
 ### Promoções
@@ -221,4 +221,4 @@ Quando o pedido for de um lanche, o retorno, em caso de sucesso da operação, s
     "status": "OK"
 ```
 
-**<br>Promoções estão hard-coded no arquivo `/fitch/src/main/java/com/lucasbrandao/restaurantapi/services/OffersService.java`, método `applyDiscount()`.**
+**<br>Promoções estão hard-coded no arquivo `/simple-restaurant-rest-api/src/main/java/com/lucasbrandao/restaurantapi/services/OffersService.java`, método `applyDiscount()`.**
